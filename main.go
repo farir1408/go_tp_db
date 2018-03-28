@@ -9,6 +9,8 @@ import (
 func main() {
 	config.InitDB()
 
-	fasthttp.ListenAndServe(":5000", nil)
+	router := router.InitRouter()
+
+	fasthttp.ListenAndServe(":5000", router.Handler)
 
 }
