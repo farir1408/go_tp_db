@@ -36,6 +36,7 @@ func UserProfile(ctx *fasthttp.RequestCtx) {
 	nickname := ctx.UserValue("nickname").(string)
 
 	result := models.User{}
+	resErr := models.Error{}
 	err := result.UserProfile(nickname)
 
 	if err == nil {
@@ -45,8 +46,9 @@ func UserProfile(ctx *fasthttp.RequestCtx) {
 	}
 
 	if err == errors.UserNotFound {
+		log.Printf("%T - type\n", err.Error())
 		ctx.SetStatusCode(404)
-		ctx.Write([]byte(`{"message":"Can't find user"}`))
+		ctx.Write(resErr.ErrorMsgJSON(err.Error()))
 	}
 }
 
@@ -54,6 +56,7 @@ func UserUpdateProfile(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("application/json")
 	nickname := ctx.UserValue("nickname").(string)
 	user := models.User{}
+	resErr := models.Error{}
 	user.UnmarshalJSON(ctx.PostBody())
 	user.NickName = nickname
 	log.Println(user.NickName)
@@ -70,12 +73,12 @@ func UserUpdateProfile(ctx *fasthttp.RequestCtx) {
 	if err == errors.UserUpdateConflict {
 		log.Println("ERROR is Exist")
 		ctx.SetStatusCode(409)
-		ctx.Write([]byte(`{"message":"Conflict with existing users"}`))
+		ctx.Write(resErr.ErrorMsgJSON(err.Error()))
 	}
 
 	if err == errors.UserNotFound {
 		log.Println("ERROR is Exist")
 		ctx.SetStatusCode(404)
-		ctx.Write([]byte(`{"message":"Can't find user"}`))
+		ctx.Write(resErr.ErrorMsgJSON(err.Error()))
 	}
 }
