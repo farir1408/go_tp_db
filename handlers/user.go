@@ -46,7 +46,6 @@ func UserProfile(ctx *fasthttp.RequestCtx) {
 	}
 
 	if err == errors.UserNotFound {
-		log.Printf("%T - type\n", err.Error())
 		ctx.SetStatusCode(404)
 		ctx.Write(resErr.ErrorMsgJSON(err.Error()))
 	}
