@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/buaazp/fasthttprouter"
+	"go_tp_db/handlers"
 )
 
 func InitRouter() *fasthttprouter.Router {
@@ -25,9 +26,9 @@ func InitRouter() *fasthttprouter.Router {
 	r.GET("/thread/:slug_or_id/posts", nil)
 	r.POST("/thread/:slug_or_id/vote", nil)
 
-	r.POST("/user/:nickname/create", nil)
-	r.GET("/user/:nickname/profile", nil)
-	r.POST("/user/:nickname/profile", nil)
+	r.POST("/user/:nickname/create", handlers.UserCreate)
+	r.GET("/user/:nickname/profile", handlers.UserProfile)
+	r.POST("/user/:nickname/profile", handlers.UserUpdateProfile)
 
 	return r
 }
