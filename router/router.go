@@ -14,13 +14,13 @@ func InitRouter() *fasthttprouter.Router {
 	r.GET("/forum/:slug/threads", nil)
 	r.GET("/forum/:slug/users", nil)
 
-	r.GET("/post/:id/details", nil)
+	r.GET("/post/:id/details", handlers.PostDetails)
 	r.POST("/post/:id/details", nil)
 
 	r.POST("/service/clear", nil)
 	r.GET("/service/status", nil)
 
-	r.POST("/thread/:slug_or_id/create", nil)
+	r.POST("/thread/:slug_or_id/create", handlers.PostsCreate)
 	r.GET("/thread/:slug_or_id/details", nil)
 	r.POST("/thread/:slug_or_id/details", nil)
 	r.GET("/thread/:slug_or_id/posts", nil)
