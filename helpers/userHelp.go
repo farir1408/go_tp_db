@@ -9,7 +9,5 @@ const CreateUser = `INSERT INTO users (about, email, fullname, nickname)
 const SelectUserProfile = `SELECT about, email, fullname, nickname FROM users
 							WHERE nickname = $1`
 
-
 const UpdateUser = `UPDATE users SET about = $1, email = $2, fullname = $3
 					WHERE nickname = $4`
-

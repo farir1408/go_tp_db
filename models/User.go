@@ -1,10 +1,10 @@
 package models
 
 import (
-	"log"
 	"go_tp_db/config"
-	"go_tp_db/helpers"
 	"go_tp_db/errors"
+	"go_tp_db/helpers"
+	"log"
 )
 
 //easyjson:json

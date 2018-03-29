@@ -9,8 +9,8 @@ func InitRouter() *fasthttprouter.Router {
 	r := fasthttprouter.New()
 
 	r.POST("/forum/:slug", handlers.ForumCreate)
-	r.POST("/forum/:slug/create", nil)
-	r.GET("/forum/:slug/detail", nil)
+	r.POST("/forum/:slug/create", handlers.ForumThreadCreate)
+	r.GET("/forum/:slug/detail", handlers.ForumDetails)
 	r.GET("/forum/:slug/threads", nil)
 	r.GET("/forum/:slug/users", nil)
 

@@ -4,6 +4,7 @@ import (
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
+	"log"
 )
 
 //easyjson:json
@@ -40,6 +41,44 @@ func (forum *Forum) ForumCreate() (*Forum, error) {
 		//log.Println(err)
 		tx.Rollback()
 		return nil, errors.UserNotFound
+	}
+
+	tx.Commit()
+	return nil, nil
+}
+
+func (forum *Forum) ForumDetails(slug string) error {
+	//start database transaction
+	tx := config.StartTransaction()
+
+	if err := tx.QueryRow(helpers.SelectForumDetail, slug).Scan(&forum.Posts, &forum.Slug,
+		&forum.Threads, &forum.Title, &forum.User); err != nil {
+		tx.Rollback()
+		return errors.UserNotFound
+	}
+
+	return nil
+}
+
+func (thread *Thread) ForumThreadCreate() (*Thread, error) {
+	//start database transaction
+	tx := config.StartTransaction()
+
+	isThreadExist := Thread{}
+
+	if err := tx.QueryRow(helpers.SelectThreadCreate, &thread.Author, &thread.Message, &thread.Title,
+		&thread.Created).Scan(
+		&isThreadExist.Author, &isThreadExist.Created, &isThreadExist.ForumId, &isThreadExist.ID,
+		&isThreadExist.Message, &isThreadExist.Slug, &isThreadExist.Title, &isThreadExist.Votes); err == nil {
+		tx.Rollback()
+		return &isThreadExist, errors.ThreadIsExist
+	}
+
+	if _, err := tx.Exec(helpers.SelectThreadByUser, &thread.Author, &thread.Message,
+		&thread.Title, &thread.ForumId, &thread.Slug, &thread.Created); err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return nil, errors.ForumNotFound
 	}
 
 	tx.Commit()
