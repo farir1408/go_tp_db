@@ -1,7 +1,9 @@
 package helpers
 
-const SelectThreadIdForumId = `SELECT id, forum FROM thread
+const SelectThreadIdForumSlug = `SELECT id, forum FROM thread
 								WHERE slug = $1`
 
-const SelectThreadIdForumIdByID = `SELECT id, forum FROM thread
+const SelectThreadIdForumSlugByID = `SELECT id, forum FROM thread
 									WHERE id = $1`
+
+const SelectForumID = `SELECT id FROM forum WHERE slug = $1`

@@ -21,7 +21,7 @@ func InitRouter() *fasthttprouter.Router {
 	r.GET("/service/status", nil)
 
 	r.POST("/thread/:slug_or_id/create", handlers.PostsCreate)
-	r.GET("/thread/:slug_or_id/details", nil)
+	r.GET("/thread/:slug_or_id/details", handlers.ThreadDetails)
 	r.POST("/thread/:slug_or_id/details", nil)
 	r.GET("/thread/:slug_or_id/posts", nil)
 	r.POST("/thread/:slug_or_id/vote", nil)

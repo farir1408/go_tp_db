@@ -17,10 +17,10 @@ func PostsCreate(ctx *fasthttp.RequestCtx) {
 	err := posts.PostsCreate(slug)
 
 	if err == errors.ThreadNotFound {
-		resErr := models.Error{}
+		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.SetStatusCode(404)
 		log.Println("this block is completed ThreadNotFound Posts")
-		ctx.Write(resErr.ErrorMsgJSON(err.Error()))
+		ctx.Write(resErr)
 	}
 	//TODO: err == nil, it's necessary to finish
 }

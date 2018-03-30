@@ -1,6 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+	"go_tp_db/config"
+	"strconv"
+	"go_tp_db/helpers"
+	"log"
+	"go_tp_db/errors"
+)
 
 //easyjson:json
 type Thread struct {
@@ -22,3 +29,29 @@ type ThreadUpdate struct {
 
 //easyjson:json
 type Threads []*Thread
+
+func (thread *Thread) ThreadDetails(slug string) error {
+	tx := config.StartTransaction()
+
+	id, err := strconv.Atoi(slug)
+
+	if err != nil {
+		//slug is slug
+		if err = tx.QueryRow(helpers.SelectThreadBySlug, slug).Scan(&thread.ID, &thread.Author,
+			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
+			&thread.Title, &thread.Votes); err != nil {
+				log.Println(err)
+				tx.Rollback()
+				return errors.ThreadNotFound
+		}
+	} else {
+		if err = tx.QueryRow(helpers.SelectThreadById, id).Scan(&thread.ID, &thread.Author,
+			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
+			&thread.Title, &thread.Votes); err != nil {
+			log.Println(err)
+			tx.Rollback()
+			return errors.ThreadNotFound
+		}
+	}
+	return nil
+}

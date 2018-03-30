@@ -67,7 +67,7 @@ func (thread *Thread) ForumThreadCreate() (*Thread, error) {
 	isThreadExist := Thread{}
 
 	if err := tx.QueryRow(helpers.SelectThreadCreate, &thread.Author, &thread.Message, &thread.Title,
-		&thread.Created).Scan(
+		&thread.Created, &thread.Slug).Scan(
 		&isThreadExist.Author, &isThreadExist.Created, &isThreadExist.ForumId, &isThreadExist.ID,
 		&isThreadExist.Message, &isThreadExist.Slug, &isThreadExist.Title, &isThreadExist.Votes); err == nil {
 		tx.Rollback()
