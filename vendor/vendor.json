@@ -1,0 +1,127 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "TWP7iCok6v14DRpFE7kmgKpztac=",
+			"path": "github.com/buaazp/fasthttprouter",
+			"revision": "28db72dff5a1512dab256b4b7f85c5aa8c36cf73",
+			"revisionTime": "2018-02-11T07:41:05Z"
+		},
+		{
+			"checksumSHA1": "wqQ3UyB8hF4gPOO1tkzBuE0onBU=",
+			"path": "github.com/jackc/pgx",
+			"revision": "b6bdf5f89bb9484d8c66b5e89810943c1e9fbbbb",
+			"revisionTime": "2018-03-17T15:28:34Z"
+		},
+		{
+			"checksumSHA1": "rsDmBQ/jGFUN2t6G4c3ohkKGKdQ=",
+			"path": "github.com/jackc/pgx/chunkreader",
+			"revision": "b6bdf5f89bb9484d8c66b5e89810943c1e9fbbbb",
+			"revisionTime": "2018-03-17T15:28:34Z"
+		},
+		{
+			"checksumSHA1": "wArf/u0cmHsLafG2tOcjVUUXQBw=",
+			"path": "github.com/jackc/pgx/internal/sanitize",
+			"revision": "b6bdf5f89bb9484d8c66b5e89810943c1e9fbbbb",
+			"revisionTime": "2018-03-17T15:28:34Z"
+		},
+		{
+			"checksumSHA1": "OCtOmvS8BLHQAyQXJ/Ub8QxKz0s=",
+			"path": "github.com/jackc/pgx/pgio",
+			"revision": "b6bdf5f89bb9484d8c66b5e89810943c1e9fbbbb",
+			"revisionTime": "2018-03-17T15:28:34Z"
+		},
+		{
+			"checksumSHA1": "Fj02uVXJiJ8K2DxAwU9zRTj5Ppo=",
+			"path": "github.com/jackc/pgx/pgproto3",
+			"revision": "b6bdf5f89bb9484d8c66b5e89810943c1e9fbbbb",
+			"revisionTime": "2018-03-17T15:28:34Z"
+		},
+		{
+			"checksumSHA1": "1T5NusOlWnlZAClP0ccmBSRxVtA=",
+			"path": "github.com/jackc/pgx/pgtype",
+			"revision": "b6bdf5f89bb9484d8c66b5e89810943c1e9fbbbb",
+			"revisionTime": "2018-03-17T15:28:34Z"
+		},
+		{
+			"checksumSHA1": "mA7isU/nIAT5ytwIzK65H0vlVqI=",
+			"path": "github.com/klauspost/compress/flate",
+			"revision": "2c62357afe99df84d86deb8044ab5b16ac2d1712",
+			"revisionTime": "2018-03-04T16:13:17Z"
+		},
+		{
+			"checksumSHA1": "kWBC7CTgppTdJFXizt4XkURbyCE=",
+			"path": "github.com/klauspost/compress/gzip",
+			"revision": "2c62357afe99df84d86deb8044ab5b16ac2d1712",
+			"revisionTime": "2018-03-04T16:13:17Z"
+		},
+		{
+			"checksumSHA1": "KQ77MI2l4iDQE0Z/DiDeO0S963o=",
+			"path": "github.com/klauspost/compress/zlib",
+			"revision": "2c62357afe99df84d86deb8044ab5b16ac2d1712",
+			"revisionTime": "2018-03-04T16:13:17Z"
+		},
+		{
+			"checksumSHA1": "AObsuWOEbBqkgXAAnopjIj7omkY=",
+			"path": "github.com/klauspost/cpuid",
+			"revision": "ae832f27941af41db13bd6d8efd2493e3b22415a",
+			"revisionTime": "2018-01-02T08:10:00Z"
+		},
+		{
+			"checksumSHA1": "HIMDeysKGqDKh9a3N5lFLZRNHaU=",
+			"path": "github.com/mailru/easyjson",
+			"revision": "517203d186eb343d3df4068565cc0446b450d2c4",
+			"revisionTime": "2018-03-20T13:17:58Z"
+		},
+		{
+			"checksumSHA1": "T8soMJArSZrYnhmdpAnq1bVxQ6Q=",
+			"path": "github.com/mailru/easyjson/buffer",
+			"revision": "517203d186eb343d3df4068565cc0446b450d2c4",
+			"revisionTime": "2018-03-20T13:17:58Z"
+		},
+		{
+			"checksumSHA1": "MvAeFP0PzKZTcvly/uo20LH+vt8=",
+			"path": "github.com/mailru/easyjson/jlexer",
+			"revision": "517203d186eb343d3df4068565cc0446b450d2c4",
+			"revisionTime": "2018-03-20T13:17:58Z"
+		},
+		{
+			"checksumSHA1": "4BAeeJ7JywEQyR6GqRrxfSfN2/Q=",
+			"path": "github.com/mailru/easyjson/jwriter",
+			"revision": "517203d186eb343d3df4068565cc0446b450d2c4",
+			"revisionTime": "2018-03-20T13:17:58Z"
+		},
+		{
+			"checksumSHA1": "ljd3FhYRJ91cLZz3wsH9BQQ2JbA=",
+			"path": "github.com/pkg/errors",
+			"revision": "816c9085562cd7ee03e7f8188a1cfd942858cded",
+			"revisionTime": "2018-03-11T21:45:15Z"
+		},
+		{
+			"checksumSHA1": "LTOa3BADhwvT0wFCknPueQALm8I=",
+			"path": "github.com/valyala/bytebufferpool",
+			"revision": "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7",
+			"revisionTime": "2016-08-17T18:16:52Z"
+		},
+		{
+			"checksumSHA1": "eq08pJz4K+i3qiS39A7ENDBMoF0=",
+			"path": "github.com/valyala/fasthttp",
+			"revision": "e5f51c11919d4f66400334047b897ef0a94c6f3c",
+			"revisionTime": "2017-12-07T12:09:41Z"
+		},
+		{
+			"checksumSHA1": "nFdyJk6jdHzVNgEMdjDuWMk4z5o=",
+			"path": "github.com/valyala/fasthttp/fasthttputil",
+			"revision": "e5f51c11919d4f66400334047b897ef0a94c6f3c",
+			"revisionTime": "2017-12-07T12:09:41Z"
+		},
+		{
+			"checksumSHA1": "YXXy4b1yOQx/iL3Icv6svTmcGss=",
+			"path": "github.com/valyala/fasthttp/stackless",
+			"revision": "e5f51c11919d4f66400334047b897ef0a94c6f3c",
+			"revisionTime": "2017-12-07T12:09:41Z"
+		}
+	],
+	"rootPath": "go_tp_db"
+}
