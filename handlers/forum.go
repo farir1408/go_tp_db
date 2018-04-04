@@ -6,6 +6,7 @@ import (
 	"go_tp_db/models"
 	//"log"
 	"strings"
+	"log"
 )
 
 func ForumCreate(ctx *fasthttp.RequestCtx) {
@@ -65,7 +66,7 @@ func ForumThreadCreate(ctx *fasthttp.RequestCtx) {
 	thread.UnmarshalJSON(ctx.PostBody())
 
 	slug := ctx.UserValue("slug").(string)
-	strings.ToLower(slug)
+	//strings.ToLower(slug)
 
 	//log.Println(slug)
 	thread.ForumId = slug
@@ -91,6 +92,31 @@ func ForumThreadCreate(ctx *fasthttp.RequestCtx) {
 	if err == errors.ThreadIsExist {
 		ctx.SetStatusCode(409)
 		//log.Println("this block is completed ThreadIsExist")
+		buf, _ := resp.MarshalJSON()
+		ctx.Write(buf)
+	}
+}
+
+func GetThreads(ctx *fasthttp.RequestCtx) {
+	ctx.SetContentType("application/json")
+	slug := ctx.UserValue("slug").(string)
+	limit := ctx.FormValue("limit")
+	since := ctx.FormValue("since")
+	desc := ctx.FormValue("desc")
+	log.Println("LIMIT ", string(limit))
+	log.Println("SINCE ", string(since))
+	log.Println("DESC ", string(desc))
+	thread := models.Thread{}
+	resp, err := thread.GetThreads(slug, limit, since, desc)
+
+	switch err {
+	case errors.ForumNotFound:
+		ctx.SetStatusCode(404)
+		resErr, _ := models.Error{err.Error()}.MarshalJSON()
+		//log.Println("this block is completed UserNotFound Thread")
+		ctx.Write(resErr)
+	case nil:
+		ctx.SetStatusCode(200)
 		buf, _ := resp.MarshalJSON()
 		ctx.Write(buf)
 	}

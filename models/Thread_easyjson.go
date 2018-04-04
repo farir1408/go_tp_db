@@ -43,7 +43,9 @@ func easyjsonA4b236b8DecodeGoTpDbModels(in *jlexer.Lexer, out *Threads) {
 				if v1 == nil {
 					v1 = new(Thread)
 				}
-				(*v1).UnmarshalEasyJSON(in)
+				if data := in.Raw(); in.Ok() {
+					in.AddError((*v1).UnmarshalJSON(data))
+				}
 			}
 			*out = append(*out, v1)
 			in.WantComma()
@@ -66,7 +68,7 @@ func easyjsonA4b236b8EncodeGoTpDbModels(out *jwriter.Writer, in Threads) {
 			if v3 == nil {
 				out.RawString("null")
 			} else {
-				(*v3).MarshalEasyJSON(out)
+				out.Raw((*v3).MarshalJSON())
 			}
 		}
 		out.RawByte(']')

@@ -4,10 +4,11 @@ import (
 	"github.com/valyala/fasthttp"
 	"go_tp_db/errors"
 	"go_tp_db/models"
-	//"log"
+	"log"
 )
 
 func UserCreate(ctx *fasthttp.RequestCtx) {
+	log.Println("User Create")
 	ctx.SetContentType("application/json")
 	user := models.User{}
 	nickname := ctx.UserValue("nickname").(string)
@@ -32,14 +33,18 @@ func UserCreate(ctx *fasthttp.RequestCtx) {
 }
 
 func UserProfile(ctx *fasthttp.RequestCtx) {
+	log.Println("User Profile  ", string(ctx.Method()))
 	ctx.SetContentType("application/json")
 	nickname := ctx.UserValue("nickname").(string)
+	log.Println(nickname)
 
 	result := models.User{}
+	log.Println("WARNING")
 	err := result.UserProfile(nickname)
 
 	if err == nil {
 		ctx.SetStatusCode(200)
+		log.Println("get user profile is ok")
 		buf, _ := result.MarshalJSON()
 		ctx.Write(buf)
 	}
@@ -52,6 +57,7 @@ func UserProfile(ctx *fasthttp.RequestCtx) {
 }
 
 func UserUpdateProfile(ctx *fasthttp.RequestCtx) {
+	log.Println("User Update  ", string(ctx.Method()))
 	ctx.SetContentType("application/json")
 	nickname := ctx.UserValue("nickname").(string)
 	user := models.User{}
@@ -69,7 +75,7 @@ func UserUpdateProfile(ctx *fasthttp.RequestCtx) {
 	}
 
 	if err == errors.UserUpdateConflict {
-		//log.Println("ERROR is Exist")
+		log.Println("ERROR is Exist")
 		ctx.SetStatusCode(409)
 		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.Write(resErr)

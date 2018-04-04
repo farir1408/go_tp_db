@@ -9,5 +9,13 @@ const CreateUser = `INSERT INTO users (about, email, fullname, nickname)
 const SelectUserProfile = `SELECT about, email, fullname, nickname FROM users
 							WHERE nickname = $1`
 
-const UpdateUser = `UPDATE users SET about = $1, email = $2, fullname = $3
-					WHERE nickname = $4`
+const UpdateUser = `UPDATE users SET 
+						about = coalesce(coalesce(nullif($1, ''), about)), 
+						email = coalesce(coalesce(nullif($2, ''), email)), 
+						fullname = coalesce(coalesce(nullif($3, ''), fullname))
+					WHERE nickname = $4
+					RETURNING
+						about,
+						email,
+						fullname,
+						nickname`

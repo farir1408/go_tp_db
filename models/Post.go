@@ -53,14 +53,12 @@ func (posts *Posts) PostsCreate(slug string) error {
 	id, err := strconv.Atoi(slug)
 	if err != nil {
 		//	id is slug (string)
-		if err = tx.QueryRow(helpers.SelectThreadIdForumSlug, slug).Scan(&id, &forumSlug);
-		err != nil {
+		if err = tx.QueryRow(helpers.SelectThreadIdForumSlug, slug).Scan(&id, &forumSlug); err != nil {
 			log.Println(err)
 			return errors.ThreadNotFound
 		}
 	} else {
-		if err = tx.QueryRow(helpers.SelectThreadIdForumSlugByID, id).Scan(&id, &forumSlug);
-		err != nil {
+		if err = tx.QueryRow(helpers.SelectThreadIdForumSlugByID, id).Scan(&id, &forumSlug); err != nil {
 			log.Println(err)
 			return errors.ThreadNotFound
 		}

@@ -5,6 +5,7 @@ import (
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
 	"log"
+	"strings"
 )
 
 //easyjson:json
@@ -24,12 +25,13 @@ type ForumDetail struct {
 func (forum *Forum) ForumCreate() (*Forum, error) {
 	//start database transaction
 	tx := config.StartTransaction()
-
+	forum.User = strings.ToLower(forum.User)
+	log.Println(forum.User)
 	isForumExist := Forum{}
 
 	//checking the forum for existence
 	if err := tx.QueryRow(helpers.SelectForumCreate, &forum.Slug,
-		&forum.Title, &forum.User).Scan(&isForumExist.Posts,
+		&forum.User).Scan(&isForumExist.Posts,
 		&isForumExist.Slug, &isForumExist.Threads,
 		&isForumExist.Title, &isForumExist.User); err == nil {
 		tx.Rollback()
@@ -37,11 +39,13 @@ func (forum *Forum) ForumCreate() (*Forum, error) {
 	}
 
 	//checking the author(user) for existence
-	if _, err := tx.Exec(helpers.SelectForumByUser, &forum.Slug, &forum.Title, &forum.User); err != nil {
+	if err := tx.QueryRow(helpers.SelectForumByUser, &forum.Slug, &forum.Title, &forum.User).Scan(&forum.User); err != nil {
 		//log.Println(err)
 		tx.Rollback()
 		return nil, errors.UserNotFound
 	}
+	log.Println("WARNING")
+	log.Println(string(forum.User))
 
 	tx.Commit()
 	return nil, nil
@@ -63,19 +67,20 @@ func (forum *Forum) ForumDetails(slug string) error {
 func (thread *Thread) ForumThreadCreate() (*Thread, error) {
 	//start database transaction
 	tx := config.StartTransaction()
+	log.Println("SLUG is - ", thread.Slug)
 
 	isThreadExist := Thread{}
 
-	if err := tx.QueryRow(helpers.SelectThreadCreate, &thread.Author, &thread.Message, &thread.Title,
-		&thread.Created, &thread.Slug).Scan(
+	if err := tx.QueryRow(helpers.SelectThreadCreate, &thread.Message, &thread.Title,
+		&thread.Slug).Scan(
 		&isThreadExist.Author, &isThreadExist.Created, &isThreadExist.ForumId, &isThreadExist.ID,
 		&isThreadExist.Message, &isThreadExist.Slug, &isThreadExist.Title, &isThreadExist.Votes); err == nil {
 		tx.Rollback()
 		return &isThreadExist, errors.ThreadIsExist
 	}
 
-	if _, err := tx.Exec(helpers.SelectThreadByUser, &thread.Author, &thread.Message,
-		&thread.Title, &thread.ForumId, &thread.Slug, &thread.Created); err != nil {
+	if err := tx.QueryRow(helpers.SelectThreadByUser, &thread.Author, &thread.Message,
+		&thread.Title, &thread.ForumId, &thread.Slug, &thread.Created).Scan(&thread.ID); err != nil {
 		log.Println(err)
 		tx.Rollback()
 		return nil, errors.ForumNotFound

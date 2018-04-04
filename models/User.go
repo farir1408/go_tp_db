@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/jackc/pgx"
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
@@ -17,9 +18,9 @@ type User struct {
 
 //easyjson:json
 type UserUpdate struct {
-	About    string `json:"about"`
-	Email    string `json:"email"`
-	FullName string `json:"fullname"`
+	About    string `json:"about, omitempty"`
+	Email    string `json:"email, omitempty"`
+	FullName string `json:"fullname, omitempty"`
 }
 
 //easyjson:json
@@ -45,11 +46,11 @@ func (user *User) UserCreate() (Users, error) {
 
 		for queryRows.Next() {
 			isUserExist := User{}
-			log.Println("We are hear!!!")
+			//log.Println("New user")
 			queryRows.Scan(&isUserExist.About, &isUserExist.Email,
 				&isUserExist.FullName, &isUserExist.NickName)
 
-			log.Println(&isUserExist.NickName, &isUserExist.FullName)
+			//log.Println(&isUserExist.NickName, &isUserExist.FullName)
 			userArr = append(userArr, &isUserExist)
 		}
 
@@ -63,9 +64,11 @@ func (user *User) UserCreate() (Users, error) {
 
 func (user *User) UserProfile(nickname string) error {
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 
 	if err := tx.QueryRow(helpers.SelectUserProfile, nickname).Scan(&user.About,
 		&user.Email, &user.FullName, &user.NickName); err != nil {
+		log.Println(err)
 		tx.Rollback()
 		return errors.UserNotFound
 	}
@@ -74,24 +77,34 @@ func (user *User) UserProfile(nickname string) error {
 }
 
 func (newUser *User) UpdateUserProfile() error {
-	log.Println("somthing")
 	tx := config.StartTransaction()
 
-	rows, err := tx.Exec(helpers.UpdateUser, &newUser.About, &newUser.Email,
-		&newUser.FullName, &newUser.NickName)
-
-	if err != nil {
-		log.Println(err)
-		tx.Rollback()
-		return errors.UserUpdateConflict
-	}
-
-	if rows.RowsAffected() == 0 {
-		log.Println(err)
+	if err := tx.QueryRow(helpers.UpdateUser, &newUser.About, &newUser.Email,
+		&newUser.FullName, &newUser.NickName).Scan(&newUser.About, &newUser.Email,
+		&newUser.FullName, &newUser.NickName); err != nil {
+		if _, ok := err.(pgx.PgError); ok {
+			tx.Rollback()
+			return errors.UserUpdateConflict
+		}
 		tx.Rollback()
 		return errors.UserNotFound
 	}
+
 	tx.Commit()
-	log.Println(err)
+	return nil
+
+	//if err != nil {
+	//	//log.Println("CONFLICT", err)
+	//	tx.Rollback()
+	//	return errors.UserUpdateConflict
+	//}
+	//
+	//if rows.RowsAffected() == 0 {
+	//	//log.Println("NotUSER", err)
+	//	tx.Rollback()
+	//	return errors.UserNotFound
+	//}
+
+	tx.Commit()
 	return nil
 }
