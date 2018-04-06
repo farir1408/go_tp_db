@@ -376,7 +376,9 @@ func easyjson6aa74c22DecodeGoTpDbModels3(in *jlexer.Lexer, out *Post) {
 		case "parent":
 			out.Parent = int(in.Int())
 		case "thread":
-			out.Thread = string(in.String())
+			out.Thread = int(in.Int())
+		case "slug":
+			out.Slug = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -473,7 +475,17 @@ func easyjson6aa74c22EncodeGoTpDbModels3(out *jwriter.Writer, in Post) {
 		} else {
 			out.RawString(prefix)
 		}
-		out.String(string(in.Thread))
+		out.Int(int(in.Thread))
+	}
+	{
+		const prefix string = ",\"slug\":"
+		if first {
+			first = false
+			out.RawString(prefix[1:])
+		} else {
+			out.RawString(prefix)
+		}
+		out.String(string(in.Slug))
 	}
 	out.RawByte('}')
 }

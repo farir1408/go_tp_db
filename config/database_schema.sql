@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS post (
   isEdited    BOOLEAN         NOT NULL DEFAULT FALSE,
   message     TEXT            NOT NULL,
   parent      BIGINT          DEFAULT 0,
-  thread      INTEGER         NOT NULL
+  thread      INTEGER         NOT NULL,
+  slug        CITEXT
 );
 
 -- THREAD
@@ -52,5 +53,6 @@ CREATE TABLE IF NOT EXISTS thread (
 CREATE TABLE IF NOT EXISTS vote (
   id          INTEGER         NOT NULL REFERENCES thread(id),
   voice       SMALLINT        NOT NULL ,
-  nickname    CITEXT          NOT NULL REFERENCES users(nickname)
+  nickname    CITEXT          NOT NULL REFERENCES users(nickname),
+  UNIQUE (id, nickname)
 );

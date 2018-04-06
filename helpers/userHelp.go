@@ -19,3 +19,37 @@ const UpdateUser = `UPDATE users SET
 						email,
 						fullname,
 						nickname`
+
+const SelectUsersSinceDesc = `SELECT about, email, fullname, nickname FROM users
+								WHERE (((SELECT COUNT(*) FROM post 
+								WHERE forum = $1 AND author = nickname) != 0)
+								OR ((SELECT COUNT(*) FROM THREAD
+								WHERE forum = $1 AND author = nickname) != 0))
+								AND nickname < $2 COLLATE "C"
+								ORDER BY lower(nickname) COLLATE "C" DESC
+								LIMIT $3::TEXT::INTEGER`
+
+const SelectUsersSince = `SELECT about, email, fullname, nickname FROM users
+								WHERE (((SELECT COUNT(*) FROM post 
+								WHERE forum = $1 AND author = nickname) != 0)
+								OR ((SELECT COUNT(*) FROM THREAD
+								WHERE forum = $1 AND author = nickname) != 0))
+								AND nickname > $2 COLLATE "C"
+								ORDER BY lower(nickname) COLLATE "C"
+								LIMIT $3::TEXT::INTEGER`
+
+const SelectUsers = `SELECT about, email, fullname, nickname FROM users
+								WHERE ((SELECT COUNT(*) FROM post 
+								WHERE forum = $1 AND author = nickname) != 0)
+								OR ((SELECT COUNT(*) FROM THREAD
+								WHERE forum = $1 AND author = nickname) != 0)
+								ORDER BY lower(nickname) COLLATE "C"
+								LIMIT $2::TEXT::INTEGER`
+
+const SelectUsersDesc = `SELECT about, email, fullname, nickname FROM users
+								WHERE ((SELECT COUNT(*) FROM post 
+								WHERE forum = $1 AND author = nickname) != 0)
+								OR ((SELECT COUNT(*) FROM THREAD
+								WHERE forum = $1 AND author = nickname) != 0)
+								ORDER BY lower(nickname) COLLATE "C" DESC
+								LIMIT $2::TEXT::INTEGER`

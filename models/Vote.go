@@ -21,19 +21,20 @@ func (vote *Vote) Vote(slug string) error {
 
 	if err != nil {
 		//slug is slug (string)
-		log.Println("PASS")
-		return errors.ThreadNotFound
-	} else {
-		row, err := tx.Exec(helpers.CreateVoteById, &vote.Voice, &vote.NickName, id)
-		if err != nil {
-			tx.Rollback()
-			log.Println(err)
+		if err = tx.QueryRow(helpers.CreateVoteIdBySlug, slug).Scan(&id); err != nil {
 			return errors.ThreadNotFound
 		}
-		if row.RowsAffected() != 0 {
-			tx.Commit()
-			return nil
-		}
+	}
+	row, err := tx.Exec(helpers.UpdateVoteById, &vote.Voice, id, &vote.NickName)
+	if row.RowsAffected() == 0 {
+		log.Println(err)
+		row, _ = tx.Exec(helpers.CreateVoteById, &vote.Voice, &vote.NickName, id)
+	}
+
+	_, _ = tx.Exec(helpers.UpdateThreadVotes, id)
+	if row.RowsAffected() != 0 {
+		tx.Commit()
+		return nil
 	}
 	return nil
 }

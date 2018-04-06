@@ -4,11 +4,9 @@ import (
 	"github.com/valyala/fasthttp"
 	"go_tp_db/errors"
 	"go_tp_db/models"
-	"log"
 )
 
 func UserCreate(ctx *fasthttp.RequestCtx) {
-	log.Println("User Create")
 	ctx.SetContentType("application/json")
 	user := models.User{}
 	nickname := ctx.UserValue("nickname").(string)
@@ -17,39 +15,31 @@ func UserCreate(ctx *fasthttp.RequestCtx) {
 
 	resp, err := user.UserCreate()
 
-	if err == nil {
+	switch err {
+	case nil:
 		ctx.SetStatusCode(201)
-		//log.Println("user created successfull")
 		buf, _ := user.MarshalJSON()
 		ctx.Write(buf)
-	}
-
-	if err == errors.UserIsExist {
+	case errors.UserIsExist:
 		ctx.SetStatusCode(409)
-		//log.Println("user was created earlier")
 		buf, _ := resp.MarshalJSON()
 		ctx.Write(buf)
 	}
 }
 
 func UserProfile(ctx *fasthttp.RequestCtx) {
-	log.Println("User Profile  ", string(ctx.Method()))
 	ctx.SetContentType("application/json")
 	nickname := ctx.UserValue("nickname").(string)
-	log.Println(nickname)
 
 	result := models.User{}
-	log.Println("WARNING")
 	err := result.UserProfile(nickname)
 
-	if err == nil {
+	switch err {
+	case nil:
 		ctx.SetStatusCode(200)
-		log.Println("get user profile is ok")
 		buf, _ := result.MarshalJSON()
 		ctx.Write(buf)
-	}
-
-	if err == errors.UserNotFound {
+	case errors.UserNotFound:
 		ctx.SetStatusCode(404)
 		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.Write(resErr)
@@ -57,32 +47,24 @@ func UserProfile(ctx *fasthttp.RequestCtx) {
 }
 
 func UserUpdateProfile(ctx *fasthttp.RequestCtx) {
-	log.Println("User Update  ", string(ctx.Method()))
 	ctx.SetContentType("application/json")
 	nickname := ctx.UserValue("nickname").(string)
 	user := models.User{}
 	user.UnmarshalJSON(ctx.PostBody())
 	user.NickName = nickname
-	//log.Println(user.NickName)
 
 	err := user.UpdateUserProfile()
 
-	if err == nil {
-		//log.Println("All is OK")
+	switch err {
+	case nil:
 		ctx.SetStatusCode(200)
 		buf, _ := user.MarshalJSON()
 		ctx.Write(buf)
-	}
-
-	if err == errors.UserUpdateConflict {
-		log.Println("ERROR is Exist")
+	case errors.UserUpdateConflict:
 		ctx.SetStatusCode(409)
 		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.Write(resErr)
-	}
-
-	if err == errors.UserNotFound {
-		//log.Println("ERROR is Exist")
+	case errors.UserNotFound:
 		ctx.SetStatusCode(404)
 		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.Write(resErr)

@@ -4,7 +4,6 @@ import (
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
-	"log"
 	"strconv"
 	"time"
 )
@@ -18,7 +17,8 @@ type Post struct {
 	IsEdited bool       `json:"isEdited"`
 	Message  string     `json:"message"`
 	Parent   int        `json:"parent, omitempty"`
-	Thread   string     `json:"thread"`
+	Thread   int        `json:"thread"`
+	Slug	string		`json:"slug, omitempty"`
 }
 
 //easyjson:json
@@ -41,41 +41,48 @@ func (posts *Posts) PostsCreate(slug string) error {
 	tx := config.StartTransaction()
 	defer tx.Rollback()
 
-	//if len(*posts) == 0 {
-	//	return errors.NoPostsForCreate
-	//}
+	if len(*posts) == 0 {
+		return errors.NoPostsForCreate
+	}
 
 	//checking thread id or slug
 	var forumSlug string
-	//var forumId int
-	//var parentID int
 
 	id, err := strconv.Atoi(slug)
 	if err != nil {
 		//	id is slug (string)
 		if err = tx.QueryRow(helpers.SelectThreadIdForumSlug, slug).Scan(&id, &forumSlug); err != nil {
-			log.Println(err)
 			return errors.ThreadNotFound
 		}
 	} else {
 		if err = tx.QueryRow(helpers.SelectThreadIdForumSlugByID, id).Scan(&id, &forumSlug); err != nil {
-			log.Println(err)
 			return errors.ThreadNotFound
 		}
 	}
 	//check
-	log.Println(forumSlug)
-	log.Println("thread id ", id)
-	log.Println("thread slug ", slug)
+	currentTime := time.Now().Format("2000-01-01T00:00:00.000Z")
+	curTime := time.Now()
 
-	//tx.QueryRow(helpers.SelectForumID, forumSlug).Scan(&forumId)
-	//parentIds := make([]int, 0, len(*posts))
+	for _, post := range *posts {
+		var parentId int
+		if post.Parent != 0 {
+			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent).Scan(&parentId)
+			if err != nil {
+				return errors.NoThreadParent
+			}
+		}
 
-	//for index, post := range *posts {
-	//	log.Println(index)
-	//
-	//}
+		if err = tx.QueryRow(helpers.CreatePost, post.Author, currentTime,
+			forumSlug, post.Message, parentId, id).Scan(&post.ID); err != nil {
+				return errors.NoThreadParent
+		}
+		post.Created = &curTime
+		post.IsEdited = false
+		post.ForumID = forumSlug
+		post.Thread = id
 
+	}
+	tx.Commit()
 	return nil
 
 	//TODO: complete the request processing

@@ -4,7 +4,6 @@ import (
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
-	"log"
 	"strings"
 )
 
@@ -26,7 +25,6 @@ func (forum *Forum) ForumCreate() (*Forum, error) {
 	//start database transaction
 	tx := config.StartTransaction()
 	forum.User = strings.ToLower(forum.User)
-	log.Println(forum.User)
 	isForumExist := Forum{}
 
 	//checking the forum for existence
@@ -40,12 +38,9 @@ func (forum *Forum) ForumCreate() (*Forum, error) {
 
 	//checking the author(user) for existence
 	if err := tx.QueryRow(helpers.SelectForumByUser, &forum.Slug, &forum.Title, &forum.User).Scan(&forum.User); err != nil {
-		//log.Println(err)
 		tx.Rollback()
 		return nil, errors.UserNotFound
 	}
-	log.Println("WARNING")
-	log.Println(string(forum.User))
 
 	tx.Commit()
 	return nil, nil
@@ -54,6 +49,9 @@ func (forum *Forum) ForumCreate() (*Forum, error) {
 func (forum *Forum) ForumDetails(slug string) error {
 	//start database transaction
 	tx := config.StartTransaction()
+
+	_, _ = tx.Exec(helpers.UpdateForumThreadsCnt, slug)
+	_, _ = tx.Exec(helpers.UpdateForumPostsCnt, slug)
 
 	if err := tx.QueryRow(helpers.SelectForumDetail, slug).Scan(&forum.Posts, &forum.Slug,
 		&forum.Threads, &forum.Title, &forum.User); err != nil {
@@ -67,21 +65,27 @@ func (forum *Forum) ForumDetails(slug string) error {
 func (thread *Thread) ForumThreadCreate() (*Thread, error) {
 	//start database transaction
 	tx := config.StartTransaction()
-	log.Println("SLUG is - ", thread.Slug)
 
 	isThreadExist := Thread{}
-
-	if err := tx.QueryRow(helpers.SelectThreadCreate, &thread.Message, &thread.Title,
-		&thread.Slug).Scan(
-		&isThreadExist.Author, &isThreadExist.Created, &isThreadExist.ForumId, &isThreadExist.ID,
-		&isThreadExist.Message, &isThreadExist.Slug, &isThreadExist.Title, &isThreadExist.Votes); err == nil {
-		tx.Rollback()
-		return &isThreadExist, errors.ThreadIsExist
+	if thread.Slug == "" {
+		if err := tx.QueryRow(helpers.SelectThreadCreate, &thread.Message, &thread.Title).Scan(
+			&isThreadExist.Author, &isThreadExist.Created, &isThreadExist.ForumId, &isThreadExist.ID,
+			&isThreadExist.Message, &isThreadExist.Slug, &isThreadExist.Title, &isThreadExist.Votes); err == nil {
+			tx.Rollback()
+			return &isThreadExist, errors.ThreadIsExist
+		}
+	} else {
+		if err := tx.QueryRow(helpers.SelectThreadCreateSlug, &thread.Slug).Scan(
+			&isThreadExist.Author, &isThreadExist.Created, &isThreadExist.ForumId, &isThreadExist.ID,
+			&isThreadExist.Message, &isThreadExist.Slug, &isThreadExist.Title, &isThreadExist.Votes); err == nil {
+			tx.Rollback()
+			return &isThreadExist, errors.ThreadIsExist
+		}
 	}
 
 	if err := tx.QueryRow(helpers.SelectThreadByUser, &thread.Author, &thread.Message,
-		&thread.Title, &thread.ForumId, &thread.Slug, &thread.Created).Scan(&thread.ID); err != nil {
-		log.Println(err)
+		&thread.Title, &thread.ForumId, &thread.Slug, &thread.Created).Scan(&thread.ID,
+		&thread.ForumId); err != nil {
 		tx.Rollback()
 		return nil, errors.ForumNotFound
 	}

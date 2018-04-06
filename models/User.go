@@ -6,6 +6,7 @@ import (
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
 	"log"
+	"bytes"
 )
 
 //easyjson:json
@@ -31,7 +32,7 @@ func (user *User) UserCreate() (Users, error) {
 
 	rows, err := tx.Exec(helpers.CreateUser, &user.About, &user.Email, &user.FullName, &user.NickName)
 	if err != nil {
-		log.Println("WARNING", err)
+		log.Fatalln(err)
 	}
 
 	//rows != 0 if user was created in Exec command, if user was created earlier rows = 0
@@ -39,18 +40,15 @@ func (user *User) UserCreate() (Users, error) {
 		userArr := Users{}
 		queryRows, err := tx.Query(helpers.SelectUser, &user.NickName, &user.Email)
 		if err != nil {
-			log.Println(err)
+			log.Fatalln(err)
 		}
 
 		defer queryRows.Close()
 
 		for queryRows.Next() {
 			isUserExist := User{}
-			//log.Println("New user")
 			queryRows.Scan(&isUserExist.About, &isUserExist.Email,
 				&isUserExist.FullName, &isUserExist.NickName)
-
-			//log.Println(&isUserExist.NickName, &isUserExist.FullName)
 			userArr = append(userArr, &isUserExist)
 		}
 
@@ -68,7 +66,6 @@ func (user *User) UserProfile(nickname string) error {
 
 	if err := tx.QueryRow(helpers.SelectUserProfile, nickname).Scan(&user.About,
 		&user.Email, &user.FullName, &user.NickName); err != nil {
-		log.Println(err)
 		tx.Rollback()
 		return errors.UserNotFound
 	}
@@ -92,19 +89,59 @@ func (newUser *User) UpdateUserProfile() error {
 
 	tx.Commit()
 	return nil
+}
 
-	//if err != nil {
-	//	//log.Println("CONFLICT", err)
-	//	tx.Rollback()
-	//	return errors.UserUpdateConflict
-	//}
-	//
-	//if rows.RowsAffected() == 0 {
-	//	//log.Println("NotUSER", err)
-	//	tx.Rollback()
-	//	return errors.UserNotFound
-	//}
+func GetUsers(slug string, limit []byte, since []byte,
+			desc []byte) (Users, error) {
 
-	tx.Commit()
-	return nil
+	tx := config.StartTransaction()
+	defer tx.Rollback()
+	var results *pgx.Rows
+	var err error
+
+	if since != nil {
+		if bytes.Equal([]byte("true"), desc) {
+			log.Println("SENCE DESC TRUE")
+			results, err = tx.Query(helpers.SelectUsersSinceDesc, slug, string(since), limit)
+		} else {
+			log.Println("SENCE DESC FALSE")
+			results, err = tx.Query(helpers.SelectUsersSince, slug, string(since), limit)
+		}
+	} else {
+		if bytes.Equal([]byte("true"), desc) {
+			log.Println("NOT SENCE DECS TRUE")
+			results, err = tx.Query(helpers.SelectUsersDesc, slug, limit)
+		} else {
+			log.Println("NOT SENCE DECS FALSE")
+			results, err = tx.Query(helpers.SelectUsers, slug, limit)
+		}
+	}
+	if err != nil {
+		log.Println(err)
+	}
+
+	defer results.Close()
+
+	users := Users{}
+	for results.Next() {
+		user := User{}
+
+		if err = results.Scan(&user.About, &user.Email, &user.FullName, &user.NickName);
+		err != nil {
+			log.Fatalln(err)
+		}
+		log.Println("USER - ", user.NickName)
+		users = append(users, &user)
+	}
+
+	if len(users) == 0 {
+		var cnt int
+		log.Println("SLUG", slug)
+		if err = tx.QueryRow("SELECT 1 FROM forum WHERE slug = $1", slug).Scan(&cnt); err != nil {
+			log.Println("SELECT EMPTY ------ ", err)
+			return nil, errors.ForumNotFound
+		}
+	}
+
+	return users, nil
 }

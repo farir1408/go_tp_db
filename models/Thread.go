@@ -42,7 +42,6 @@ func (thread *Thread) ThreadDetails(slug string) error {
 		if err = tx.QueryRow(helpers.SelectThreadBySlug, slug).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
 			&thread.Title, &thread.Votes); err != nil {
-			log.Println(err)
 			tx.Rollback()
 			return errors.ThreadNotFound
 		}
@@ -50,7 +49,6 @@ func (thread *Thread) ThreadDetails(slug string) error {
 		if err = tx.QueryRow(helpers.SelectThreadById, id).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
 			&thread.Title, &thread.Votes); err != nil {
-			log.Println(err)
 			tx.Rollback()
 			return errors.ThreadNotFound
 		}
@@ -59,48 +57,45 @@ func (thread *Thread) ThreadDetails(slug string) error {
 }
 
 func (threadUpdate *ThreadUpdate) ThreadUpdate(slug string) (*Thread, error) {
-	log.Println("UPDATE THREAD")
 	tx := config.StartTransaction()
 
 	id, err := strconv.Atoi(slug)
 
-	log.Println("message: ", threadUpdate.Message)
-	log.Println("title: ", threadUpdate.Title)
-
 	if err != nil {
 		//slug is string
-		row, err := tx.Exec(helpers.UpdateThreadBySlug, &threadUpdate.Message, &threadUpdate.Title, slug)
+		row, _ := tx.Exec(helpers.UpdateThreadBySlug, &threadUpdate.Message, &threadUpdate.Title, slug)
 		if row.RowsAffected() == 0 {
-			log.Println(err)
 			tx.Rollback()
 			return nil, errors.ThreadNotFound
 		}
 		thread := Thread{}
-		err = tx.QueryRow(helpers.SelectThreadBySlug, slug).Scan(&thread.ID, &thread.Author,
+		_ = tx.QueryRow(helpers.SelectThreadBySlug, slug).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
 			&thread.Title, &thread.Votes)
+
 		tx.Commit()
 		return &thread, nil
 	} else {
 		//slug is id (int)
-		row, err := tx.Exec(helpers.UpdateThreadById, &threadUpdate.Message, &threadUpdate.Title, id)
+		row, _ := tx.Exec(helpers.UpdateThreadById, &threadUpdate.Message, &threadUpdate.Title, id)
 		if row.RowsAffected() == 0 {
-			log.Println(err)
 			tx.Rollback()
 			return nil, errors.ThreadNotFound
 		}
 		thread := Thread{}
-		err = tx.QueryRow(helpers.SelectThreadById, slug).Scan(&thread.ID, &thread.Author,
+		_ = tx.QueryRow(helpers.SelectThreadById, slug).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
 			&thread.Title, &thread.Votes)
+
 		tx.Commit()
 		return &thread, nil
 	}
 }
 
-func (thread *Thread) GetThreads(slug string, limit []byte,
+func GetThreads(slug string, limit []byte,
 								since []byte, desc []byte) (Threads, error) {
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 	var results *pgx.Rows
 	var err error
 
@@ -119,7 +114,7 @@ func (thread *Thread) GetThreads(slug string, limit []byte,
 	}
 
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 
 	defer results.Close()
