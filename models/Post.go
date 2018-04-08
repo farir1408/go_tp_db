@@ -16,17 +16,17 @@ type Post struct {
 	ForumID  string     `json:"forum"`
 	IsEdited bool       `json:"isEdited"`
 	Message  string     `json:"message"`
-	Parent   int        `json:"parent, omitempty"`
+	Parent   int        `json:"parent,omitempty"`
 	Thread   int        `json:"thread"`
-	Slug	string		`json:"slug, omitempty"`
+	Slug	string		`json:"slug,omitempty"`
 }
 
 //easyjson:json
 type PostDetail struct {
-	Author *User   `json:"author"`
-	Forum  *Forum  `json:"forum"`
-	Post   *Post   `json:"post"`
-	Thread *Thread `json:"thread"`
+	Author *User   `json:"author,omitempty"`
+	Forum  *Forum  `json:"forum,omitempty"`
+	Post   *Post   `json:"post,omitempty"`
+	Thread *Thread `json:"thread,omitempty"`
 }
 
 //easyjson:json
@@ -40,10 +40,6 @@ type Posts []*Post
 func (posts *Posts) PostsCreate(slug string) error {
 	tx := config.StartTransaction()
 	defer tx.Rollback()
-
-	if len(*posts) == 0 {
-		return errors.NoPostsForCreate
-	}
 
 	//checking thread id or slug
 	var forumSlug string
@@ -59,24 +55,29 @@ func (posts *Posts) PostsCreate(slug string) error {
 			return errors.ThreadNotFound
 		}
 	}
-	//check
-	currentTime := time.Now().Format("2000-01-01T00:00:00.000Z")
-	curTime := time.Now()
+
+	if len(*posts) == 0 {
+		return errors.NoPostsForCreate
+	}
+
+	created, _ := time.Parse("2006-01-02T15:04:05.000000Z", "2006-01-02T15:04:05.010000Z")
 
 	for _, post := range *posts {
 		var parentId int
+
+		if err = tx.QueryRow(helpers.CreatePost, post.Author, &created,
+			forumSlug, post.Message, parentId, id).Scan(&post.ID); err != nil {
+				return errors.ThreadNotFound
+		}
 		if post.Parent != 0 {
-			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent).Scan(&parentId)
+
+			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent, id).Scan(&parentId)
+
 			if err != nil {
 				return errors.NoThreadParent
 			}
 		}
-
-		if err = tx.QueryRow(helpers.CreatePost, post.Author, currentTime,
-			forumSlug, post.Message, parentId, id).Scan(&post.ID); err != nil {
-				return errors.NoThreadParent
-		}
-		post.Created = &curTime
+		post.Created = &created
 		post.IsEdited = false
 		post.ForumID = forumSlug
 		post.Thread = id
@@ -86,4 +87,62 @@ func (posts *Posts) PostsCreate(slug string) error {
 	return nil
 
 	//TODO: complete the request processing
+}
+
+func PostDetails(id string, related []string) (*PostDetail, error) {
+	tx := config.StartTransaction()
+	defer tx.Rollback()
+	postDetail := PostDetail{}
+	postDetail.Post = &Post{}
+
+	postId, _ := strconv.Atoi(id)
+
+	err :=  tx.QueryRow(helpers.SelectPost, postId).Scan(&postDetail.Post.Author,
+			&postDetail.Post.Created, &postDetail.Post.ForumID, &postDetail.Post.Message,
+			&postDetail.Post.Parent, &postDetail.Post.Thread, &postDetail.Post.IsEdited)
+	if err != nil {
+		return nil, errors.PostNotFound
+	}
+	postDetail.Post.ID = postId
+
+	if related == nil {
+		return &postDetail, nil
+	}
+	for _, val := range related {
+		switch val {
+		case "user":
+			postDetail.Author = &User{}
+			tx.QueryRow(helpers.SelectUserProfile, &postDetail.Post.Author).Scan(&postDetail.Author.About,
+				&postDetail.Author.Email, &postDetail.Author.FullName, &postDetail.Author.NickName)
+		case "thread":
+			postDetail.Thread = &Thread{}
+			tx.QueryRow(helpers.SelectThreadById, &postDetail.Post.Thread).Scan(
+				&postDetail.Thread.ID, &postDetail.Thread.Author, &postDetail.Thread.Created,
+				&postDetail.Thread.ForumId, &postDetail.Thread.Message, &postDetail.Thread.Slug,
+				&postDetail.Thread.Title, &postDetail.Thread.Votes)
+		case "forum":
+			postDetail.Forum = &Forum{}
+			_, _ = tx.Exec(helpers.UpdateForumThreadsCnt, &postDetail.Post.ForumID)
+			_, _ = tx.Exec(helpers.UpdateForumPostsCnt, &postDetail.Post.ForumID)
+
+			tx.QueryRow(helpers.SelectForumDetail, &postDetail.Post.ForumID).Scan(
+				&postDetail.Forum.Posts, &postDetail.Forum.Slug, &postDetail.Forum.Threads,
+				&postDetail.Forum.Title, &postDetail.Forum.User)
+		}
+	}
+	return &postDetail, nil
+}
+
+func (post *Post) PostUpdate(update *PostUpdate, id string) error {
+	tx := config.StartTransaction()
+	defer tx.Rollback()
+	postId, _ := strconv.Atoi(id)
+
+	if err := tx.QueryRow(helpers.UpdatePost, &update.Message, &postId).Scan(&post.Author,
+		&post.Created, &post.ForumID, &post.ID, &post.IsEdited, &post.Message,
+		&post.Parent, &post.Thread); err != nil {
+			return errors.ThreadNotFound
+	}
+	tx.Commit()
+	return nil
 }

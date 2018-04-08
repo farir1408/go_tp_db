@@ -250,7 +250,7 @@ func easyjson6aa74c22EncodeGoTpDbModels2(out *jwriter.Writer, in PostDetail) {
 	out.RawByte('{')
 	first := true
 	_ = first
-	{
+	if in.Author != nil {
 		const prefix string = ",\"author\":"
 		if first {
 			first = false
@@ -258,13 +258,9 @@ func easyjson6aa74c22EncodeGoTpDbModels2(out *jwriter.Writer, in PostDetail) {
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Author == nil {
-			out.RawString("null")
-		} else {
-			out.Raw((*in.Author).MarshalJSON())
-		}
+		out.Raw((*in.Author).MarshalJSON())
 	}
-	{
+	if in.Forum != nil {
 		const prefix string = ",\"forum\":"
 		if first {
 			first = false
@@ -272,13 +268,9 @@ func easyjson6aa74c22EncodeGoTpDbModels2(out *jwriter.Writer, in PostDetail) {
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Forum == nil {
-			out.RawString("null")
-		} else {
-			out.Raw((*in.Forum).MarshalJSON())
-		}
+		out.Raw((*in.Forum).MarshalJSON())
 	}
-	{
+	if in.Post != nil {
 		const prefix string = ",\"post\":"
 		if first {
 			first = false
@@ -286,13 +278,9 @@ func easyjson6aa74c22EncodeGoTpDbModels2(out *jwriter.Writer, in PostDetail) {
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Post == nil {
-			out.RawString("null")
-		} else {
-			out.Raw((*in.Post).MarshalJSON())
-		}
+		out.Raw((*in.Post).MarshalJSON())
 	}
-	{
+	if in.Thread != nil {
 		const prefix string = ",\"thread\":"
 		if first {
 			first = false
@@ -300,11 +288,7 @@ func easyjson6aa74c22EncodeGoTpDbModels2(out *jwriter.Writer, in PostDetail) {
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Thread == nil {
-			out.RawString("null")
-		} else {
-			out.Raw((*in.Thread).MarshalJSON())
-		}
+		out.Raw((*in.Thread).MarshalJSON())
 	}
 	out.RawByte('}')
 }
@@ -457,7 +441,7 @@ func easyjson6aa74c22EncodeGoTpDbModels3(out *jwriter.Writer, in Post) {
 		}
 		out.String(string(in.Message))
 	}
-	{
+	if in.Parent != 0 {
 		const prefix string = ",\"parent\":"
 		if first {
 			first = false
@@ -477,7 +461,7 @@ func easyjson6aa74c22EncodeGoTpDbModels3(out *jwriter.Writer, in Post) {
 		}
 		out.Int(int(in.Thread))
 	}
-	{
+	if in.Slug != "" {
 		const prefix string = ",\"slug\":"
 		if first {
 			first = false

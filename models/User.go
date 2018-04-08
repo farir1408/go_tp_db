@@ -101,23 +101,16 @@ func GetUsers(slug string, limit []byte, since []byte,
 
 	if since != nil {
 		if bytes.Equal([]byte("true"), desc) {
-			log.Println("SENCE DESC TRUE")
 			results, err = tx.Query(helpers.SelectUsersSinceDesc, slug, string(since), limit)
 		} else {
-			log.Println("SENCE DESC FALSE")
 			results, err = tx.Query(helpers.SelectUsersSince, slug, string(since), limit)
 		}
 	} else {
 		if bytes.Equal([]byte("true"), desc) {
-			log.Println("NOT SENCE DECS TRUE")
 			results, err = tx.Query(helpers.SelectUsersDesc, slug, limit)
 		} else {
-			log.Println("NOT SENCE DECS FALSE")
 			results, err = tx.Query(helpers.SelectUsers, slug, limit)
 		}
-	}
-	if err != nil {
-		log.Println(err)
 	}
 
 	defer results.Close()
@@ -130,15 +123,12 @@ func GetUsers(slug string, limit []byte, since []byte,
 		err != nil {
 			log.Fatalln(err)
 		}
-		log.Println("USER - ", user.NickName)
 		users = append(users, &user)
 	}
 
 	if len(users) == 0 {
 		var cnt int
-		log.Println("SLUG", slug)
 		if err = tx.QueryRow("SELECT 1 FROM forum WHERE slug = $1", slug).Scan(&cnt); err != nil {
-			log.Println("SELECT EMPTY ------ ", err)
 			return nil, errors.ForumNotFound
 		}
 	}

@@ -44,7 +44,6 @@ func loadSchemaSQL() error {
 func StartTransaction() *pgx.Tx {
 	tx, err := db.Begin()
 	if err != nil {
-		log.Println(err)
 		log.Fatalln(err)
 	}
 	return tx

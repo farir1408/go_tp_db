@@ -4,9 +4,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"go_tp_db/errors"
 	"go_tp_db/models"
-	//"log"
 	"strings"
-	"log"
 )
 
 func ForumCreate(ctx *fasthttp.RequestCtx) {
@@ -103,8 +101,6 @@ func GetUsers(ctx *fasthttp.RequestCtx) {
 	limit := ctx.FormValue("limit")
 	since := ctx.FormValue("since")
 	desc := ctx.FormValue("desc")
-	log.Println("GET USERS -----------------------------------------------------")
-	log.Println("SINCE IS -----------------------------", string(since))
 
 	resp, err := models.GetUsers(slug, limit, since, desc)
 

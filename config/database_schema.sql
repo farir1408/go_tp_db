@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS forum (
 CREATE TABLE IF NOT EXISTS post (
   id          SERIAL          PRIMARY KEY,
   author      CITEXT          NOT NULL REFERENCES users(nickname),
-  created     TIMESTAMPTZ(3),
+  created     TIMESTAMPTZ,
   forum       CITEXT          NOT NULL REFERENCES forum(slug),
   isEdited    BOOLEAN         NOT NULL DEFAULT FALSE,
   message     TEXT            NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS post (
 CREATE TABLE IF NOT EXISTS thread (
   id          SERIAL          PRIMARY KEY,
   author      CITEXT          NOT NULL REFERENCES users(nickname),
-  created     TIMESTAMPTZ(3),
+  created     TIMESTAMPTZ,
   forum       CITEXT          NOT NULL REFERENCES forum(slug),
   message     TEXT            NOT NULL,
   slug        CITEXT,

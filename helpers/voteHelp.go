@@ -8,3 +8,5 @@ const UpdateThreadVotes = `UPDATE thread SET votes = (SELECT SUM(voice) FROM vot
 						WHERE id = $1`
 
 const CreateVoteIdBySlug = `SELECT id FROM thread WHERE slug = $1`
+
+const SelectThreadId = `SELECT id FROM thread WHERE id = $1`
