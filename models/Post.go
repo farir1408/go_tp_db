@@ -85,8 +85,6 @@ func (posts *Posts) PostsCreate(slug string) error {
 	}
 	tx.Commit()
 	return nil
-
-	//TODO: complete the request processing
 }
 
 func PostDetails(id string, related []string) (*PostDetail, error) {
@@ -136,13 +134,25 @@ func PostDetails(id string, related []string) (*PostDetail, error) {
 func (post *Post) PostUpdate(update *PostUpdate, id string) error {
 	tx := config.StartTransaction()
 	defer tx.Rollback()
-	postId, _ := strconv.Atoi(id)
+
+	postId, err := strconv.Atoi(id)
+	if err != nil {
+		return errors.PostNotFound
+	}
+
+	err = tx.QueryRow(helpers.SelectPostMessage, &postId).Scan(&post.Author,
+		&post.Created, &post.ForumID, &post.ID, &post.IsEdited, &post.Message,
+		&post.Parent, &post.Thread)
+	if post.Message == update.Message && update.Message != "" {
+		return nil
+	}
 
 	if err := tx.QueryRow(helpers.UpdatePost, &update.Message, &postId).Scan(&post.Author,
 		&post.Created, &post.ForumID, &post.ID, &post.IsEdited, &post.Message,
 		&post.Parent, &post.Thread); err != nil {
-			return errors.ThreadNotFound
+			return errors.PostNotFound
 	}
+
 	tx.Commit()
 	return nil
 }

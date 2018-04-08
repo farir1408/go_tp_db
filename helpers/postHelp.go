@@ -13,10 +13,12 @@ const CreatePost = `INSERT INTO post (author, created, forum, message, parent, t
 					$2, $3, $4, $5, $6)
 					RETURNING id`
 
-const SelectPost = `SELECT author, (created AT TIME ZONE 'UTC'), forum, message, parent, thread, isEdited
+const SelectPost = `SELECT author, (created AT TIME ZONE 'UTC'), forum, message::TEXT, parent, thread, isEdited
 					FROM post WHERE id = $1`
 
 const UpdatePost = `UPDATE post SET message = coalesce(coalesce(nullif($1, ''), message)),
-					isEdited = true 
+					isEdited = ('' IS DISTINCT FROM $1)  
 					WHERE id = $2
 					RETURNING author, (created AT TIME ZONE 'UTC'), forum, id, isEdited, message, parent, thread`
+
+const SelectPostMessage = `SELECT author, (created AT TIME ZONE 'UTC'), forum, id, isEdited, message, parent, thread FROM post WHERE id = $1`
