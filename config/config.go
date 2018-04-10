@@ -20,6 +20,7 @@ const dataBaseSchema = "./config/database_schema.sql"
 
 func loadSchemaSQL() error {
 	tx, err := db.Begin()
+	//defer tx.Rollback()
 	if err != nil {
 		log.Println(err)
 		return err
@@ -59,6 +60,7 @@ func InitDB() {
 	})
 
 	if err != nil {
+		log.Println(err)
 		log.Fatalln(err)
 	}
 

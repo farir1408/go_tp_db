@@ -26,11 +26,8 @@ func ClearDataBase() {
 	tx := config.StartTransaction()
 	defer tx.Commit()
 
-	log.Println("CLEAR DB")
 	_, err := tx.Exec(helpers.ClearDB)
 	if err != nil {
-		log.Println(err)
 		log.Fatalln(err)
 	}
-	//TODO: доделать, пока зависает на запросе
 }

@@ -49,6 +49,7 @@ func (forum *Forum) ForumCreate() (*Forum, error) {
 func (forum *Forum) ForumDetails(slug string) error {
 	//start database transaction
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 
 	_, _ = tx.Exec(helpers.UpdateForumThreadsCnt, slug)
 	_, _ = tx.Exec(helpers.UpdateForumPostsCnt, slug)

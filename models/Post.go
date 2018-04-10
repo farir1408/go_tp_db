@@ -6,6 +6,9 @@ import (
 	"go_tp_db/helpers"
 	"strconv"
 	"time"
+	"bytes"
+	"github.com/jackc/pgx"
+	"log"
 )
 
 //easyjson:json
@@ -66,9 +69,13 @@ func (posts *Posts) PostsCreate(slug string) error {
 		var parentId int
 
 		if err = tx.QueryRow(helpers.CreatePost, post.Author, &created,
-			forumSlug, post.Message, parentId, id).Scan(&post.ID); err != nil {
+			forumSlug, post.Message, &post.Parent, id).Scan(&post.ID); err != nil {
 				return errors.ThreadNotFound
 		}
+		var parents []int
+
+		_, err = tx.Exec(helpers.CreatePostParent, &post.ID)
+		//log.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAA", err)
 		if post.Parent != 0 {
 
 			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent, id).Scan(&parentId)
@@ -85,6 +92,125 @@ func (posts *Posts) PostsCreate(slug string) error {
 	}
 	tx.Commit()
 	return nil
+}
+
+func GetPostThreadId(slug string) (int, error) {
+	tx := config.StartTransaction()
+	defer tx.Rollback()
+	//checking thread id or slug
+	var forumSlug string
+
+	id, err := strconv.Atoi(slug)
+	if err != nil {
+		//	id is slug (string)
+		if err = tx.QueryRow(helpers.SelectThreadIdForumSlug, slug).Scan(&id, &forumSlug); err != nil {
+			return id, errors.ThreadNotFound
+		}
+	} else {
+		if err = tx.QueryRow(helpers.SelectThreadIdForumSlugByID, id).Scan(&id, &forumSlug); err != nil {
+			return id, errors.ThreadNotFound
+		}
+	}
+
+	return id, nil
+}
+
+func GetPostsSortFlat(threadId int, limit []byte,
+					since []byte, desc []byte) (*Posts, error) {
+	tx := config.StartTransaction()
+	defer tx.Rollback()
+	posts := Posts{}
+	var err error
+	var result *pgx.Rows
+	if since != nil {
+		if bytes.Equal([]byte("true"), desc) {
+			result, err = tx.Query(helpers.SelectPostsSinceFlatDesc, &threadId,
+								string(since), string(limit))
+		} else {
+			result, err = tx.Query(helpers.SelectPostsSinceFlat, &threadId,
+								string(since), string(limit))
+		}
+	} else {
+		if bytes.Equal([]byte("true"), desc) {
+			result, err = tx.Query(helpers.SelectPostsFlatDesc, &threadId, string(limit))
+		} else {
+			result, err = tx.Query(helpers.SelectPostsFlat, &threadId, string(limit))
+		}
+	}
+	defer result.Close()
+
+	if err != nil {
+		return nil, errors.ThreadNotFound
+	}
+
+	for result.Next() {
+		post := Post{}
+
+		err = result.Scan(&post.Author, &post.Created, &post.ForumID,
+			&post.ID, &post.IsEdited, &post.Message, &post.Parent, &post.Thread)
+		if err != nil {
+			log.Fatal(err)
+		}
+		posts = append(posts, &post)
+	}
+
+	if len(posts) == 0 {
+		var cnt int
+		if err = tx.QueryRow("SELECT 1 FROM thread WHERE id = $1", &threadId).Scan(&cnt); err != nil {
+			return nil, errors.ThreadNotFound
+		}
+	}
+
+	return &posts, nil
+}
+
+func GetPostsSortTree(threadId int, limit []byte,
+					since []byte, desc []byte) (*Posts, error) {
+	tx := config.StartTransaction()
+	defer tx.Rollback()
+	posts := Posts{}
+	var err error
+	var result *pgx.Rows
+	if since != nil {
+		if bytes.Equal([]byte("true"), desc) {
+			result, err = tx.Query(helpers.SelectPostsSinceTreeDesc, &threadId,
+				string(since), string(limit))
+		} else {
+			result, err = tx.Query(helpers.SelectPostsSinceTree, &threadId,
+				string(since), string(limit))
+		}
+	} else {
+		if bytes.Equal([]byte("true"), desc) {
+			result, err = tx.Query(helpers.SelectPostsTreeDesc, &threadId, string(limit))
+		} else {
+			result, err = tx.Query(helpers.SelectPostsTree, &threadId, string(limit))
+		}
+	}
+	defer result.Close()
+
+	if err != nil {
+		return nil, errors.ThreadNotFound
+	}
+
+	for result.Next() {
+		post := Post{}
+
+		err = result.Scan(&post.Author, &post.Created, &post.ForumID,
+			&post.ID, &post.IsEdited, &post.Message, &post.Parent, &post.Thread)
+		if err != nil {
+			log.Fatal(err)
+		}
+		posts = append(posts, &post)
+	}
+
+	if len(posts) == 0 {
+		var cnt int
+		if err = tx.QueryRow("SELECT 1 FROM thread WHERE id = $1", &threadId).Scan(&cnt); err != nil {
+			return nil, errors.ThreadNotFound
+		}
+	}
+
+	return &posts, nil
 }
 
 func PostDetails(id string, related []string) (*PostDetail, error) {

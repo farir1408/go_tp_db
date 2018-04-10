@@ -39,7 +39,7 @@ func PostDetails(ctx *fasthttp.RequestCtx) {
 	id := ctx.UserValue("id").(string)
 	related := ctx.FormValue("related")
 	array := strings.Split(string(related), ",")
-	//log.Println(array[0])
+
 	//check parameters
 	resp, err := models.PostDetails(id, array)
 

@@ -29,6 +29,7 @@ type Users []*User
 
 func (user *User) UserCreate() (Users, error) {
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 
 	rows, err := tx.Exec(helpers.CreateUser, &user.About, &user.Email, &user.FullName, &user.NickName)
 	if err != nil {

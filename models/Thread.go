@@ -34,6 +34,7 @@ type Threads []*Thread
 
 func (thread *Thread) ThreadDetails(slug string) error {
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 
 	id, err := strconv.Atoi(slug)
 
@@ -112,12 +113,11 @@ func GetThreads(slug string, limit []byte,
 			results, err = tx.Query(helpers.SelectThreads, slug, limit)
 		}
 	}
+	defer results.Close()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	defer results.Close()
 
 	threads := Threads{}
 	for results.Next() {

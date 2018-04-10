@@ -17,4 +17,5 @@ func StatusDataBase(ctx *fasthttp.RequestCtx) {
 func ClearDataBase(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("application/json")
 	models.ClearDataBase()
+	ctx.SetStatusCode(200)
 }

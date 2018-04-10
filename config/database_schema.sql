@@ -31,23 +31,21 @@ CREATE TABLE IF NOT EXISTS post (
   message     TEXT            NOT NULL,
   parent      BIGINT          DEFAULT 0,
   thread      INTEGER         NOT NULL,
-  slug        CITEXT
+  slug        CITEXT,
+  parentId    BIGINT
 );
 
 -- THREAD
 CREATE TABLE IF NOT EXISTS thread (
   id          SERIAL          PRIMARY KEY,
   author      CITEXT          NOT NULL REFERENCES users(nickname),
-  created     TIMESTAMPTZ,
+  created     TIMESTAMPTZ(3),
   forum       CITEXT          NOT NULL REFERENCES forum(slug),
   message     TEXT            NOT NULL,
   slug        CITEXT,
   title       TEXT            NOT NULL,
   votes       INTEGER         DEFAULT 0
 );
-
--- SELECT author, created, forum, id, message, slug, title FROM thread
--- WHERE forum = (SELECT slug FROM forum WHERE slug = 'f5t926L2ELiX8');
 
 -- VOTE
 CREATE TABLE IF NOT EXISTS vote (

@@ -15,6 +15,7 @@ type Vote struct {
 
 func (vote *Vote) Vote(slug string) error {
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 
 	id, err := strconv.Atoi(slug)
 
