@@ -38,34 +38,60 @@ const SelectPostsFlat = `SELECT author, created, forum, id, isEdited,
 						ORDER BY id
 						LIMIT $2::TEXT::INTEGER`
 
-const SelectPostsSinceTree = `SELECT author, created, forum, id, isEdited,
-						message, parent, thread FROM post
-						WHERE thread = $1
-						AND id > $2
-						ORDER BY parentId, id
-						LIMIT $3::TEXT::INTEGER`
-
-const SelectPostsSinceTreeDesc = `SELECT author, created, forum, id, isEdited,
-						message, parent, thread FROM post
-						WHERE thread = $1
-						AND id < $2
-						ORDER BY parentId, id DESC
-						LIMIT $3::TEXT::INTEGER`
-
 const SelectPostsFlatDesc = `SELECT author, created, forum, id, isEdited,
 						message, parent, thread FROM post
 						WHERE thread = $1
 						ORDER BY id DESC
 						LIMIT $2::TEXT::INTEGER`
 
+const SelectPostsSinceTree = `SELECT author, created, forum, id, isEdited,
+						message, parent, thread FROM post
+						WHERE thread = $1
+						AND (parentId > (select parentId from post where id = $2))
+						ORDER BY parentId
+						LIMIT $3::TEXT::INTEGER`
+
+const SelectPostsSinceTreeDesc = `SELECT author, created, forum, id, isEdited,
+						message, parent, thread FROM post
+						WHERE thread = $1
+						AND (parentId < (select parentId from post where id = $2))
+						ORDER BY parentId DESC
+						LIMIT $3::TEXT::INTEGER`
+
 const SelectPostsTree = `SELECT author, created, forum, id, isEdited,
 						message, parent, thread FROM post
 						WHERE thread = $1
-						ORDER BY parentId, id
+						ORDER BY parentId
 						LIMIT $2::TEXT::INTEGER`
 
 const SelectPostsTreeDesc = `SELECT author, created, forum, id, isEdited,
 						message, parent, thread FROM post
 						WHERE thread = $1
-						ORDER BY (parentId, id) DESC
+						ORDER BY parentId DESC
+						LIMIT $2::TEXT::INTEGER`
+
+const SelectPostsSinceParentTree = `SELECT author, created, forum, id, isEdited,
+						message, parent, thread FROM post
+						WHERE thread = $1
+						AND (parentId > (select parentId from post where id = $2))
+						ORDER BY parentId
+						LIMIT $3::TEXT::INTEGER`
+
+const SelectPostsSinceParentTreeDesc = `SELECT author, created, forum, id, isEdited,
+						message, parent, thread FROM post
+						WHERE thread = $1
+						AND (parentId < (select parentId from post where id = $2))
+						ORDER BY parentId DESC
+						LIMIT $3::TEXT::INTEGER`
+
+const SelectPostsParentTree = `SELECT author, created, forum, id, isEdited,
+						message, parent, thread FROM post
+						WHERE thread = $1
+						ORDER BY parentId
+						LIMIT $2::TEXT::INTEGER`
+
+const SelectPostsParentTreeDesc = `SELECT author, created, forum, id, isEdited,
+						message, parent, thread FROM post
+						WHERE thread = $1
+						ORDER BY parentId DESC
 						LIMIT $2::TEXT::INTEGER`

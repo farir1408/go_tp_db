@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS post (
   parent      BIGINT          DEFAULT 0,
   thread      INTEGER         NOT NULL,
   slug        CITEXT,
-  parentId    BIGINT
+  parentId    BIGINT []
 );
 
 -- THREAD

@@ -91,13 +91,13 @@ func ThreadPosts(ctx *fasthttp.RequestCtx) {
 	switch true {
 	case bytes.Equal(sort, []byte("tree")):
 		log.Println("SORT IS TREE")
-		log.Println("Since IS - ", string(since))
+		//log.Println("Since IS - ", string(since))
 		posts, err = models.GetPostsSortTree(threadId, limit, since, desc)
 		break
 
 	case bytes.Equal(sort, []byte("parent_tree")):
 		log.Println("SORT IS PARENT TREE")
-		posts, err = models.GetPostsSortTree(threadId, limit, since, desc)
+		posts, err = models.GetPostsSortParentTree(threadId, limit, since, desc)
 		break
 
 	default:

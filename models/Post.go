@@ -65,24 +65,33 @@ func (posts *Posts) PostsCreate(slug string) error {
 
 	created, _ := time.Parse("2006-01-02T15:04:05.000000Z", "2006-01-02T15:04:05.010000Z")
 
-	for _, post := range *posts {
-		var parentId int
+	for index, post := range *posts {
+		//var parentId int
+		log.Println(index)
 
 		if err = tx.QueryRow(helpers.CreatePost, post.Author, &created,
 			forumSlug, post.Message, &post.Parent, id).Scan(&post.ID); err != nil {
+				log.Println("1111111", err)
 				return errors.ThreadNotFound
 		}
-		var parents []int
+		parents := make([]int64, 0, 10)
 
-		_, err = tx.Exec(helpers.CreatePostParent, &post.ID)
 		//log.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAA", err)
 		if post.Parent != 0 {
 
-			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent, id).Scan(&parentId)
+			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent, id).Scan(&parents)
 
 			if err != nil {
+				log.Println("22222222", err)
 				return errors.NoThreadParent
 			}
+		}
+		parents = append(parents, int64(post.ID))
+		log.Printf("posts type - %T\n", parents)
+		log.Println(parents)
+		_, err = tx.Exec(helpers.CreatePostParent, post.ID, parents)
+		if err != nil {
+			log.Println(err)
 		}
 		post.Created = &created
 		post.IsEdited = false
@@ -184,6 +193,55 @@ func GetPostsSortTree(threadId int, limit []byte,
 			result, err = tx.Query(helpers.SelectPostsTreeDesc, &threadId, string(limit))
 		} else {
 			result, err = tx.Query(helpers.SelectPostsTree, &threadId, string(limit))
+		}
+	}
+	defer result.Close()
+
+	if err != nil {
+		return nil, errors.ThreadNotFound
+	}
+
+	for result.Next() {
+		post := Post{}
+
+		err = result.Scan(&post.Author, &post.Created, &post.ForumID,
+			&post.ID, &post.IsEdited, &post.Message, &post.Parent, &post.Thread)
+		if err != nil {
+			log.Fatal(err)
+		}
+		posts = append(posts, &post)
+	}
+
+	if len(posts) == 0 {
+		var cnt int
+		if err = tx.QueryRow("SELECT 1 FROM thread WHERE id = $1", &threadId).Scan(&cnt); err != nil {
+			return nil, errors.ThreadNotFound
+		}
+	}
+
+	return &posts, nil
+}
+
+func GetPostsSortParentTree(threadId int, limit []byte,
+	since []byte, desc []byte) (*Posts, error) {
+	tx := config.StartTransaction()
+	defer tx.Rollback()
+	posts := Posts{}
+	var err error
+	var result *pgx.Rows
+	if since != nil {
+		if bytes.Equal([]byte("true"), desc) {
+			result, err = tx.Query(helpers.SelectPostsSinceParentTreeDesc, &threadId,
+				string(since), string(limit))
+		} else {
+			result, err = tx.Query(helpers.SelectPostsSinceParentTree, &threadId,
+				string(since), string(limit))
+		}
+	} else {
+		if bytes.Equal([]byte("true"), desc) {
+			result, err = tx.Query(helpers.SelectPostsParentTreeDesc, &threadId, string(limit))
+		} else {
+			result, err = tx.Query(helpers.SelectPostsParentTree, &threadId, string(limit))
 		}
 	}
 	defer result.Close()
