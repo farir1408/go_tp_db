@@ -65,30 +65,24 @@ func (posts *Posts) PostsCreate(slug string) error {
 
 	created, _ := time.Parse("2006-01-02T15:04:05.000000Z", "2006-01-02T15:04:05.010000Z")
 
-	for index, post := range *posts {
-		//var parentId int
-		log.Println(index)
+	for _, post := range *posts {
 
 		if err = tx.QueryRow(helpers.CreatePost, post.Author, &created,
 			forumSlug, post.Message, &post.Parent, id).Scan(&post.ID); err != nil {
-				log.Println("1111111", err)
 				return errors.ThreadNotFound
 		}
 		parents := make([]int64, 0, 10)
 
-		//log.Println("AAAAAAAAAAAAAAAAAAAAAAAAAAA", err)
 		if post.Parent != 0 {
 
 			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent, id).Scan(&parents)
 
 			if err != nil {
-				log.Println("22222222", err)
 				return errors.NoThreadParent
 			}
 		}
 		parents = append(parents, int64(post.ID))
-		log.Printf("posts type - %T\n", parents)
-		log.Println(parents)
+
 		_, err = tx.Exec(helpers.CreatePostParent, post.ID, parents)
 		if err != nil {
 			log.Println(err)
@@ -230,18 +224,36 @@ func GetPostsSortParentTree(threadId int, limit []byte,
 	var err error
 	var result *pgx.Rows
 	if since != nil {
-		if bytes.Equal([]byte("true"), desc) {
-			result, err = tx.Query(helpers.SelectPostsSinceParentTreeDesc, &threadId,
-				string(since), string(limit))
+		if limit != nil {
+			if bytes.Equal([]byte("true"), desc) {
+				result, err = tx.Query(helpers.SelectPostsSinceParentTreeLimitDesc, &threadId,
+					string(limit), string(since))
+			} else {
+				result, err = tx.Query(helpers.SelectPostsSinceParentTreeLimit, &threadId,
+					string(limit), string(since))
+			}
 		} else {
-			result, err = tx.Query(helpers.SelectPostsSinceParentTree, &threadId,
-				string(since), string(limit))
+			if bytes.Equal([]byte("true"), desc) {
+				result, err = tx.Query(helpers.SelectPostsSinceParentTreeDesc, &threadId,
+					string(since))
+			} else {
+				result, err = tx.Query(helpers.SelectPostsSinceParentTree, &threadId,
+					string(since))
+			}
 		}
 	} else {
-		if bytes.Equal([]byte("true"), desc) {
-			result, err = tx.Query(helpers.SelectPostsParentTreeDesc, &threadId, string(limit))
+		if limit != nil {
+			if bytes.Equal([]byte("true"), desc) {
+				result, err = tx.Query(helpers.SelectPostsParentTreeLimitDesc, &threadId, string(limit))
+			} else {
+				result, err = tx.Query(helpers.SelectPostsParentTreeLimit, &threadId, string(limit))
+			}
 		} else {
-			result, err = tx.Query(helpers.SelectPostsParentTree, &threadId, string(limit))
+			if bytes.Equal([]byte("true"), desc) {
+				result, err = tx.Query(helpers.SelectPostsParentTreeDesc, &threadId)
+			} else {
+				result, err = tx.Query(helpers.SelectPostsParentTree, &threadId)
+			}
 		}
 	}
 	defer result.Close()

@@ -17,7 +17,7 @@ func InitRouter() *fasthttprouter.Router {
 	r.GET("/post/:id/details", handlers.PostDetails)
 	r.POST("/post/:id/details", handlers.PostUpdate)
 
-	//r.POST("/service/clear", handlers.ClearDataBase)
+	r.POST("/service/clear", handlers.ClearDataBase)
 	r.GET("/service/status", handlers.StatusDataBase)
 
 	r.POST("/thread/:slug_or_id/create", handlers.PostsCreate)
