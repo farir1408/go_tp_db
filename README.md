@@ -1,4 +1,6 @@
-**tech-db-forum**
+# tech-db-forum
+
+[![Build Status](https://travis-ci.org/farir1408/go_tp_db.svg?branch=dev)](https://travis-ci.org/farir1408/go_tp_db)
 
 Тестовое задание для реализации проекта "Форумы" на курсе по базам данных в Технопарке Mail.ru (https://park.mail.ru).
 
