@@ -4,7 +4,7 @@ services:
   - docker
 
 before_install:
-  - docker build -t o.venger ./
+  - docker build --no-cache -t o.venger ./
   - docker run -d -p 5000:5000 --name o.venger -t o.venger
   - docker ps -a
 
