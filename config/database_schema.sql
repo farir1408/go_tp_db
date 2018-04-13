@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   email       CITEXT UNIQUE   NOT NULL,
   fullname    TEXT            NOT NULL,
   nickname    CITEXT UNIQUE   PRIMARY KEY
-);
+) WITHOUT OIDS;
 
 -- FORUM
 CREATE TABLE IF NOT EXISTS forum (
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS forum (
   threads     INTEGER         NOT NULL DEFAULT 0,
   title       TEXT            NOT NULL,
   author      CITEXT          NOT NULL REFERENCES users(nickname)
-);
+) WITHOUT OIDS;
 
 -- POST
 CREATE TABLE IF NOT EXISTS post (
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS post (
   thread      INTEGER         NOT NULL,
   slug        CITEXT,
   parentId    BIGINT []
-);
+) WITHOUT OIDS;
 
 -- THREAD
 CREATE TABLE IF NOT EXISTS thread (
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS thread (
   slug        CITEXT,
   title       TEXT            NOT NULL,
   votes       INTEGER         DEFAULT 0
-);
+) WITHOUT OIDS;
 
 -- VOTE
 CREATE TABLE IF NOT EXISTS vote (
@@ -53,4 +53,4 @@ CREATE TABLE IF NOT EXISTS vote (
   voice       SMALLINT        NOT NULL ,
   nickname    CITEXT          NOT NULL REFERENCES users(nickname),
   UNIQUE (id, nickname)
-);
+) WITHOUT OIDS;
