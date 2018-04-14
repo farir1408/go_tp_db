@@ -1,14 +1,14 @@
 package models
 
 import (
+	"bytes"
+	"github.com/jackc/pgx"
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
+	"log"
 	"strconv"
 	"time"
-	"bytes"
-	"github.com/jackc/pgx"
-	"log"
 )
 
 //easyjson:json
@@ -21,7 +21,7 @@ type Post struct {
 	Message  string     `json:"message"`
 	Parent   int        `json:"parent,omitempty"`
 	Thread   int        `json:"thread"`
-	Slug	string		`json:"slug,omitempty"`
+	Slug     string     `json:"slug,omitempty"`
 }
 
 //easyjson:json
@@ -69,7 +69,7 @@ func (posts *Posts) PostsCreate(slug string) error {
 
 		if err = tx.QueryRow(helpers.CreatePost, post.Author, &created,
 			forumSlug, post.Message, &post.Parent, id).Scan(&post.ID); err != nil {
-				return errors.ThreadNotFound
+			return errors.ThreadNotFound
 		}
 		parents := make([]int64, 0, 10)
 
@@ -119,7 +119,7 @@ func GetPostThreadId(slug string) (int, error) {
 }
 
 func GetPostsSortFlat(threadId int, limit []byte,
-					since []byte, desc []byte) (*Posts, error) {
+	since []byte, desc []byte) (*Posts, error) {
 	tx := config.StartTransaction()
 	defer tx.Rollback()
 	posts := Posts{}
@@ -128,10 +128,10 @@ func GetPostsSortFlat(threadId int, limit []byte,
 	if since != nil {
 		if bytes.Equal([]byte("true"), desc) {
 			result, err = tx.Query(helpers.SelectPostsSinceFlatDesc, &threadId,
-								string(since), string(limit))
+				string(since), string(limit))
 		} else {
 			result, err = tx.Query(helpers.SelectPostsSinceFlat, &threadId,
-								string(since), string(limit))
+				string(since), string(limit))
 		}
 	} else {
 		if bytes.Equal([]byte("true"), desc) {
@@ -168,7 +168,7 @@ func GetPostsSortFlat(threadId int, limit []byte,
 }
 
 func GetPostsSortTree(threadId int, limit []byte,
-					since []byte, desc []byte) (*Posts, error) {
+	since []byte, desc []byte) (*Posts, error) {
 	tx := config.StartTransaction()
 	defer tx.Rollback()
 	posts := Posts{}
@@ -291,9 +291,9 @@ func PostDetails(id string, related []string) (*PostDetail, error) {
 
 	postId, _ := strconv.Atoi(id)
 
-	err :=  tx.QueryRow(helpers.SelectPost, postId).Scan(&postDetail.Post.Author,
-			&postDetail.Post.Created, &postDetail.Post.ForumID, &postDetail.Post.Message,
-			&postDetail.Post.Parent, &postDetail.Post.Thread, &postDetail.Post.IsEdited)
+	err := tx.QueryRow(helpers.SelectPost, postId).Scan(&postDetail.Post.Author,
+		&postDetail.Post.Created, &postDetail.Post.ForumID, &postDetail.Post.Message,
+		&postDetail.Post.Parent, &postDetail.Post.Thread, &postDetail.Post.IsEdited)
 	if err != nil {
 		return nil, errors.PostNotFound
 	}
@@ -346,7 +346,7 @@ func (post *Post) PostUpdate(update *PostUpdate, id string) error {
 	if err := tx.QueryRow(helpers.UpdatePost, &update.Message, &postId).Scan(&post.Author,
 		&post.Created, &post.ForumID, &post.ID, &post.IsEdited, &post.Message,
 		&post.Parent, &post.Thread); err != nil {
-			return errors.PostNotFound
+		return errors.PostNotFound
 	}
 
 	tx.Commit()

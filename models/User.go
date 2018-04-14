@@ -1,12 +1,12 @@
 package models
 
 import (
+	"bytes"
 	"github.com/jackc/pgx"
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
 	"log"
-	"bytes"
 )
 
 //easyjson:json
@@ -93,7 +93,7 @@ func (newUser *User) UpdateUserProfile() error {
 }
 
 func GetUsers(slug string, limit []byte, since []byte,
-			desc []byte) (Users, error) {
+	desc []byte) (Users, error) {
 
 	tx := config.StartTransaction()
 	defer tx.Rollback()
@@ -120,8 +120,7 @@ func GetUsers(slug string, limit []byte, since []byte,
 	for results.Next() {
 		user := User{}
 
-		if err = results.Scan(&user.About, &user.Email, &user.FullName, &user.NickName);
-		err != nil {
+		if err = results.Scan(&user.About, &user.Email, &user.FullName, &user.NickName); err != nil {
 			log.Fatalln(err)
 		}
 		users = append(users, &user)

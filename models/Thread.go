@@ -1,14 +1,14 @@
 package models
 
 import (
+	"bytes"
+	"github.com/jackc/pgx"
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
 	"log"
 	"strconv"
 	"time"
-	"bytes"
-	"github.com/jackc/pgx"
 )
 
 //easyjson:json
@@ -94,7 +94,7 @@ func (threadUpdate *ThreadUpdate) ThreadUpdate(slug string) (*Thread, error) {
 }
 
 func GetThreads(slug string, limit []byte,
-								since []byte, desc []byte) (Threads, error) {
+	since []byte, desc []byte) (Threads, error) {
 	tx := config.StartTransaction()
 	defer tx.Rollback()
 	var results *pgx.Rows
@@ -102,7 +102,7 @@ func GetThreads(slug string, limit []byte,
 
 	if since != nil {
 		if bytes.Equal([]byte("true"), desc) {
-			results, err = tx.Query(helpers.SelectThreadsSinceDesc, slug,since, limit)
+			results, err = tx.Query(helpers.SelectThreadsSinceDesc, slug, since, limit)
 		} else {
 			results, err = tx.Query(helpers.SelectThreadsSince, slug, since, limit)
 		}
@@ -124,10 +124,9 @@ func GetThreads(slug string, limit []byte,
 		existThread := Thread{}
 
 		if err = results.Scan(&existThread.Author, &existThread.Created, &existThread.ForumId,
-			&existThread.ID, &existThread.Message, &existThread.Slug, &existThread.Title);
-			err != nil {
-				log.Fatalln(err)
-			}
+			&existThread.ID, &existThread.Message, &existThread.Slug, &existThread.Title); err != nil {
+			log.Fatalln(err)
+		}
 		threads = append(threads, &existThread)
 	}
 	//log.Println(len(threads))
