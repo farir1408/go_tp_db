@@ -11,4 +11,4 @@ before_install:
   - docker start o.venger
 
 script:
-  - ./tech-db-forum func -u http://localhost:5000/
+  - ./tech-db-forum func -u http://localhost:5000/api
