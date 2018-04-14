@@ -69,3 +69,7 @@ func InitDB() {
 	}
 	log.Println("schema initialized successfull")
 }
+
+func Disconnect() {
+	db.Close()
+}

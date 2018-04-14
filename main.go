@@ -1,11 +1,13 @@
 package main
 
 import (
-	//"github.com/buaazp/fasthttprouter"
 	"github.com/valyala/fasthttp"
 	"go_tp_db/config"
 	"go_tp_db/router"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -33,6 +35,16 @@ func panicMiddleware(router fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 func main() {
 	config.InitDB()
+
+	syscallChan := make(chan os.Signal, 1)
+	signal.Notify(syscallChan, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-syscallChan
+		log.Println("Shutdown")
+		config.Disconnect()
+		os.Exit(0)
+	}()
 
 	router := router.InitRouter()
 	accessLog := accessLogMiddleware(router.Handler)
