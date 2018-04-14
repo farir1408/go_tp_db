@@ -23,6 +23,11 @@ RUN /etc/init.d/postgresql start &&\
 RUN echo "host all  all    0.0.0.0/0  md5" >>\
 /etc/postgresql/$PG_VERSION/main/pg_hba.conf
 
+RUN echo "listen_addresses='*'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "synchronous_commit = off" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "shared_buffers = 256MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "autovacuum = off" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+
 USER root
 
 RUN wget "https://dl.google.com/go/go1.10.linux-amd64.tar.gz"
