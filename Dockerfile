@@ -17,6 +17,7 @@ USER postgres
 RUN /etc/init.d/postgresql start &&\
     psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" &&\
     psql -c "CREATE DATABASE tpdb;" &&\
+    psql -d tpdb -c "CREATE EXTENSION IF NOT EXISTS citext;" &&\
     psql -c "GRANT ALL PRIVILEGES ON DATABASE tpdb TO postgres;" &&\
     /etc/init.d/postgresql stop
 
