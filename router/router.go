@@ -3,11 +3,42 @@ package router
 import (
 	"github.com/buaazp/fasthttprouter"
 	"go_tp_db/handlers"
+	_ "net/http/pprof"
+	"github.com/valyala/fasthttp/fasthttpadaptor"
+	"net/http/pprof"
+	"github.com/valyala/fasthttp"
+	"strings"
+	"log"
 )
+
+var (
+	Cmdline = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Cmdline)
+	Profile = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Profile)
+	Symbol = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Symbol)
+	Trace = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Trace)
+	Index = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Index)
+)
+
+func PprofHandler(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.SetContentType("text/html")
+
+	if strings.HasPrefix(string(ctx.Path()), "/debug/pprof/cmdline") {
+		Cmdline(ctx)
+	} else if strings.HasPrefix(string(ctx.Path()), "/debug/pprof/profile") {
+		Profile(ctx)
+	} else if strings.HasPrefix(string(ctx.Path()), "/debug/pprof/symbol") {
+		Symbol(ctx)
+	} else if strings.HasPrefix(string(ctx.Path()), "/debug/pprof/trace") {
+		Trace(ctx)
+	} else {
+		Index(ctx)
+	}
+}
 
 func InitRouter() *fasthttprouter.Router {
 	r := fasthttprouter.New()
 
+	r.GET("/debug/pprof/:match", PprofHandler)
 	r.POST("/api/forum/:slug", handlers.ForumCreate)
 	r.POST("/api/forum/:slug/create", handlers.ForumThreadCreate)
 	r.GET("/api/forum/:slug/details", handlers.ForumDetails)
@@ -29,6 +60,7 @@ func InitRouter() *fasthttprouter.Router {
 	r.POST("/api/user/:nickname/create", handlers.UserCreate)
 	r.GET("/api/user/:nickname/profile", handlers.UserProfile)
 	r.POST("/api/user/:nickname/profile", handlers.UserUpdateProfile)
+
 
 	return r
 }

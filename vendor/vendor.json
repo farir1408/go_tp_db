@@ -111,6 +111,12 @@
 			"revisionTime": "2017-12-07T12:09:41Z"
 		},
 		{
+			"checksumSHA1": "1j/ERUJk+d/UwnmA+oMUsrPxdSw=",
+			"path": "github.com/valyala/fasthttp/fasthttpadaptor",
+			"revision": "e5f51c11919d4f66400334047b897ef0a94c6f3c",
+			"revisionTime": "2017-12-07T12:09:41Z"
+		},
+		{
 			"checksumSHA1": "nFdyJk6jdHzVNgEMdjDuWMk4z5o=",
 			"path": "github.com/valyala/fasthttp/fasthttputil",
 			"revision": "e5f51c11919d4f66400334047b897ef0a94c6f3c",
