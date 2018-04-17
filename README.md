@@ -1,7 +1,5 @@
 # tech-db-forum
 
-[![Build Status](https://travis-ci.org/farir1408/go_tp_db.svg?branch=dev)](https://travis-ci.org/farir1408/go_tp_db)
-
 Тестовое задание для реализации проекта "Форумы" на курсе по базам данных в Технопарке Mail.ru (https://park.mail.ru).
 
 Суть задания заключается в реализации API к базе данных проекта «Форумы» по документации к этому API.
