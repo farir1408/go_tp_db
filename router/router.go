@@ -3,12 +3,10 @@ package router
 import (
 	"github.com/buaazp/fasthttprouter"
 	"go_tp_db/handlers"
-	_ "net/http/pprof"
 	"github.com/valyala/fasthttp/fasthttpadaptor"
 	"net/http/pprof"
 	"github.com/valyala/fasthttp"
 	"strings"
-	"log"
 )
 
 var (
@@ -60,7 +58,6 @@ func InitRouter() *fasthttprouter.Router {
 	r.POST("/api/user/:nickname/create", handlers.UserCreate)
 	r.GET("/api/user/:nickname/profile", handlers.UserProfile)
 	r.POST("/api/user/:nickname/profile", handlers.UserUpdateProfile)
-
 
 	return r
 }

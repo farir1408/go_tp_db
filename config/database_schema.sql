@@ -5,11 +5,14 @@ CREATE EXTENSION IF NOT EXISTS citext;
 
 -- USER
 CREATE TABLE IF NOT EXISTS users (
-  about       TEXT            NOT NULL,
-  email       CITEXT UNIQUE   NOT NULL,
-  fullname    TEXT            NOT NULL,
-  nickname    CITEXT UNIQUE   PRIMARY KEY
-) WITHOUT OIDS;
+  about       TEXT                NOT NULL,
+  email       CITEXT UNIQUE       NOT NULL,
+  fullname    TEXT                NOT NULL,
+  nickname    CITEXT COLLATE "C"  UNIQUE   PRIMARY KEY
+);
+
+CREATE INDEX users_cover_idx ON users (about, email, fullname, nickname);
+CREATE INDEX users_nick_email_idx ON users (nickname, email);
 
 -- FORUM
 CREATE TABLE IF NOT EXISTS forum (
@@ -19,7 +22,11 @@ CREATE TABLE IF NOT EXISTS forum (
   threads     INTEGER         NOT NULL DEFAULT 0,
   title       TEXT            NOT NULL,
   author      CITEXT          NOT NULL REFERENCES users(nickname)
-) WITHOUT OIDS;
+);
+
+CREATE INDEX forum_slug_idx ON forum (slug);
+CREATE INDEX forum_author_idx ON forum(author);
+CREATE INDEX forum_cover_idx ON forum(id, posts, slug, threads, title, author);
 
 -- POST
 CREATE TABLE IF NOT EXISTS post (
@@ -33,7 +40,12 @@ CREATE TABLE IF NOT EXISTS post (
   thread      INTEGER         NOT NULL,
   slug        CITEXT,
   parentId    BIGINT []
-) WITHOUT OIDS;
+);
+
+CREATE INDEX post_thread_idx ON post(thread, id);
+CREATE INDEX post_forum_idx ON post(forum);
+CREATE INDEX post_parents_idx ON post(thread, parentId);
+CREATE INDEX post_parents_desc_idx ON post(thread, parentId DESC);
 
 -- THREAD
 CREATE TABLE IF NOT EXISTS thread (
@@ -45,7 +57,14 @@ CREATE TABLE IF NOT EXISTS thread (
   slug        CITEXT,
   title       TEXT            NOT NULL,
   votes       INTEGER         DEFAULT 0
-) WITHOUT OIDS;
+);
+
+CREATE INDEX thread_author_idx ON thread(author);
+CREATE INDEX thread_forum_idx ON thread(forum, created);
+CREATE INDEX thread_forum_desc_idx ON thread(forum, created DESC);
+CREATE INDEX thread_slug_idx ON thread(slug);
+CREATE INDEX thread_cover_idx ON thread(forum, id, author, created, message, slug, title, votes);
+
 
 -- VOTE
 CREATE TABLE IF NOT EXISTS vote (
@@ -53,4 +72,7 @@ CREATE TABLE IF NOT EXISTS vote (
   voice       SMALLINT        NOT NULL ,
   nickname    CITEXT          NOT NULL REFERENCES users(nickname),
   UNIQUE (id, nickname)
-) WITHOUT OIDS;
+);
+
+CREATE INDEX vote_thread_idx ON vote(id);
+CREATE INDEX vote_author_idx ON vote(nickname);

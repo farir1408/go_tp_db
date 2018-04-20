@@ -25,8 +25,8 @@ const SelectUsersSinceDesc = `SELECT about, email, fullname, nickname FROM users
 								WHERE forum = $1 AND author = nickname) != 0)
 								OR ((SELECT COUNT(*) FROM THREAD
 								WHERE forum = $1 AND author = nickname) != 0))
-								AND nickname < $2 COLLATE "C"
-								ORDER BY lower(nickname) COLLATE "C" DESC
+								AND nickname < $2
+								ORDER BY lower(nickname) DESC
 								LIMIT $3::TEXT::INTEGER`
 
 const SelectUsersSince = `SELECT about, email, fullname, nickname FROM users
@@ -34,8 +34,8 @@ const SelectUsersSince = `SELECT about, email, fullname, nickname FROM users
 								WHERE forum = $1 AND author = nickname) != 0)
 								OR ((SELECT COUNT(*) FROM THREAD
 								WHERE forum = $1 AND author = nickname) != 0))
-								AND nickname > $2 COLLATE "C"
-								ORDER BY lower(nickname) COLLATE "C"
+								AND nickname > $2
+								ORDER BY lower(nickname)
 								LIMIT $3::TEXT::INTEGER`
 
 const SelectUsers = `SELECT about, email, fullname, nickname FROM users
@@ -43,7 +43,7 @@ const SelectUsers = `SELECT about, email, fullname, nickname FROM users
 								WHERE forum = $1 AND author = nickname) != 0)
 								OR ((SELECT COUNT(*) FROM THREAD
 								WHERE forum = $1 AND author = nickname) != 0)
-								ORDER BY lower(nickname) COLLATE "C"
+								ORDER BY lower(nickname)
 								LIMIT $2::TEXT::INTEGER`
 
 const SelectUsersDesc = `SELECT about, email, fullname, nickname FROM users
@@ -51,5 +51,5 @@ const SelectUsersDesc = `SELECT about, email, fullname, nickname FROM users
 								WHERE forum = $1 AND author = nickname) != 0)
 								OR ((SELECT COUNT(*) FROM THREAD
 								WHERE forum = $1 AND author = nickname) != 0)
-								ORDER BY lower(nickname) COLLATE "C" DESC
+								ORDER BY lower(nickname) DESC
 								LIMIT $2::TEXT::INTEGER`
