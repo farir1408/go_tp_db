@@ -43,32 +43,33 @@ func (thread *Thread) ThreadDetails(slug string) error {
 		if err = tx.QueryRow(helpers.SelectThreadBySlug, slug).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
 			&thread.Title, &thread.Votes); err != nil {
-			tx.Rollback()
 			return errors.ThreadNotFound
 		}
 	} else {
 		if err = tx.QueryRow(helpers.SelectThreadById, id).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
 			&thread.Title, &thread.Votes); err != nil {
-			tx.Rollback()
 			return errors.ThreadNotFound
 		}
 	}
+
 	return nil
 }
 
 func (threadUpdate *ThreadUpdate) ThreadUpdate(slug string) (*Thread, error) {
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 
 	id, err := strconv.Atoi(slug)
 
 	if err != nil {
 		//slug is string
 		row, _ := tx.Exec(helpers.UpdateThreadBySlug, &threadUpdate.Message, &threadUpdate.Title, slug)
+
 		if row.RowsAffected() == 0 {
-			tx.Rollback()
 			return nil, errors.ThreadNotFound
 		}
+
 		thread := Thread{}
 		_ = tx.QueryRow(helpers.SelectThreadBySlug, slug).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
@@ -79,10 +80,11 @@ func (threadUpdate *ThreadUpdate) ThreadUpdate(slug string) (*Thread, error) {
 	} else {
 		//slug is id (int)
 		row, _ := tx.Exec(helpers.UpdateThreadById, &threadUpdate.Message, &threadUpdate.Title, id)
+
 		if row.RowsAffected() == 0 {
-			tx.Rollback()
 			return nil, errors.ThreadNotFound
 		}
+
 		thread := Thread{}
 		_ = tx.QueryRow(helpers.SelectThreadById, slug).Scan(&thread.ID, &thread.Author,
 			&thread.Created, &thread.ForumId, &thread.Message, &thread.Slug,
@@ -116,7 +118,7 @@ func GetThreads(slug string, limit []byte,
 	defer results.Close()
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	threads := Threads{}
@@ -125,11 +127,11 @@ func GetThreads(slug string, limit []byte,
 
 		if err = results.Scan(&existThread.Author, &existThread.Created, &existThread.ForumId,
 			&existThread.ID, &existThread.Message, &existThread.Slug, &existThread.Title); err != nil {
-			log.Fatalln(err)
+			log.Panic(err)
 		}
 		threads = append(threads, &existThread)
 	}
-	//log.Println(len(threads))
+
 	if len(threads) == 0 {
 		var cnt int
 		if err = tx.QueryRow("SELECT 1 FROM forum WHERE slug = $1", slug).Scan(&cnt); err != nil {

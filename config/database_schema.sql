@@ -1,5 +1,5 @@
 -- DATABASE SCHEMA FOR TECHNOPARK DATABASE PROJECT
-DROP TABLE IF EXISTS users, forum, post, thread, vote CASCADE;
+DROP TABLE IF EXISTS users, forum, post, thread, vote, forum_users CASCADE;
 
 CREATE EXTENSION IF NOT EXISTS citext;
 
@@ -10,6 +10,20 @@ CREATE TABLE IF NOT EXISTS users (
   fullname    TEXT                NOT NULL,
   nickname    CITEXT COLLATE "C"  UNIQUE   PRIMARY KEY
 );
+
+-- таблица для поиска всех пользователей форума
+CREATE TABLE IF NOT EXISTS forum_users (
+  about       TEXT                NOT NULL,
+  email       CITEXT UNIQUE       NOT NULL,
+  fullname    TEXT                NOT NULL,
+  nickname    CITEXT COLLATE "C"  NOT NULL,
+  forum_slug  CITEXT              NOT NULL,
+  UNIQUE (nickname, forum_slug)
+);
+
+CREATE INDEX forum_users_nickname_idx ON forum_users (nickname);
+CREATE INDEX forum_users_slug_idx ON forum_users (forum_slug);
+CREATE INDEX forum_users_cover_idx ON forum_users (nickname, forum_slug);
 
 CREATE INDEX users_cover_idx ON users (about, email, fullname, nickname);
 CREATE INDEX users_nick_email_idx ON users (nickname, email);
@@ -63,7 +77,7 @@ CREATE INDEX thread_author_idx ON thread(author);
 CREATE INDEX thread_forum_idx ON thread(forum, created);
 CREATE INDEX thread_forum_desc_idx ON thread(forum, created DESC);
 CREATE INDEX thread_slug_idx ON thread(slug);
-CREATE INDEX thread_cover_idx ON thread(forum, id, author, created, message, slug, title, votes);
+-- CREATE INDEX thread_cover_idx ON thread(forum, id, author, created, message, slug, title, votes);
 
 
 -- VOTE
@@ -74,5 +88,5 @@ CREATE TABLE IF NOT EXISTS vote (
   UNIQUE (id, nickname)
 );
 
-CREATE INDEX vote_thread_idx ON vote(id);
-CREATE INDEX vote_author_idx ON vote(nickname);
+-- CREATE INDEX vote_thread_idx ON vote(id);
+-- CREATE INDEX vote_author_idx ON vote(nickname);

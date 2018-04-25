@@ -16,9 +16,7 @@ const CreatePost = `INSERT INTO post (author, created, forum, message, parent, t
 const CreatePostParent = `UPDATE post SET parentId = $2
 							WHERE id = $1`
 
-//(coalesce(coalesce(nullif(parent, 0), id)))
-
-const SelectPost = `SELECT author, (created AT TIME ZONE 'UTC'), forum, message::TEXT, parent, thread, isEdited
+const SelectPost = `SELECT author, (created AT TIME ZONE 'UTC'), forum, message, parent, thread, isEdited
 					FROM post WHERE id = $1`
 
 const UpdatePost = `UPDATE post SET message = coalesce(coalesce(nullif($1, ''), message)),

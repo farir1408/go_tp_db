@@ -33,7 +33,7 @@ func (user *User) UserCreate() (Users, error) {
 
 	rows, err := tx.Exec(helpers.CreateUser, &user.About, &user.Email, &user.FullName, &user.NickName)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panic(err)
 	}
 
 	//rows != 0 if user was created in Exec command, if user was created earlier rows = 0
@@ -41,7 +41,7 @@ func (user *User) UserCreate() (Users, error) {
 		userArr := Users{}
 		queryRows, err := tx.Query(helpers.SelectUser, &user.NickName, &user.Email)
 		if err != nil {
-			log.Fatalln(err)
+			log.Panic(err)
 		}
 
 		defer queryRows.Close()
@@ -53,7 +53,6 @@ func (user *User) UserCreate() (Users, error) {
 			userArr = append(userArr, &isUserExist)
 		}
 
-		tx.Rollback()
 		return userArr, errors.UserIsExist
 	}
 
@@ -67,7 +66,6 @@ func (user *User) UserProfile(nickname string) error {
 
 	if err := tx.QueryRow(helpers.SelectUserProfile, nickname).Scan(&user.About,
 		&user.Email, &user.FullName, &user.NickName); err != nil {
-		tx.Rollback()
 		return errors.UserNotFound
 	}
 
@@ -76,15 +74,15 @@ func (user *User) UserProfile(nickname string) error {
 
 func (newUser *User) UpdateUserProfile() error {
 	tx := config.StartTransaction()
+	defer tx.Rollback()
 
 	if err := tx.QueryRow(helpers.UpdateUser, &newUser.About, &newUser.Email,
 		&newUser.FullName, &newUser.NickName).Scan(&newUser.About, &newUser.Email,
 		&newUser.FullName, &newUser.NickName); err != nil {
 		if _, ok := err.(pgx.PgError); ok {
-			tx.Rollback()
 			return errors.UserUpdateConflict
 		}
-		tx.Rollback()
+
 		return errors.UserNotFound
 	}
 

@@ -83,7 +83,8 @@ func (posts *Posts) PostsCreate(slug string) error {
 		}
 		parents = append(parents, int64(post.ID))
 
-		_, err = tx.Exec(helpers.CreatePostParent, post.ID, parents)
+		tx.Exec(helpers.InsertForumUsersTmpThread, &post.Author, &forumSlug)
+		_, err = tx.Exec(helpers.CreatePostParent, &post.ID, &parents)
 		if err != nil {
 			log.Println(err)
 		}
@@ -93,6 +94,9 @@ func (posts *Posts) PostsCreate(slug string) error {
 		post.Thread = id
 
 	}
+
+	tx.Exec(helpers.InsertForumPostCnt, len(*posts), &forumSlug)
+
 	tx.Commit()
 	return nil
 }
@@ -316,8 +320,8 @@ func PostDetails(id string, related []string) (*PostDetail, error) {
 				&postDetail.Thread.Title, &postDetail.Thread.Votes)
 		case "forum":
 			postDetail.Forum = &Forum{}
-			_, _ = tx.Exec(helpers.UpdateForumThreadsCnt, &postDetail.Post.ForumID)
-			_, _ = tx.Exec(helpers.UpdateForumPostsCnt, &postDetail.Post.ForumID)
+
+			//_, _ = tx.Exec(helpers.UpdateForumPostsCnt, &postDetail.Post.ForumID)
 
 			tx.QueryRow(helpers.SelectForumDetail, &postDetail.Post.ForumID).Scan(
 				&postDetail.Forum.Posts, &postDetail.Forum.Slug, &postDetail.Forum.Threads,
