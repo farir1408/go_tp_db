@@ -3,12 +3,12 @@ package main
 import (
 	"github.com/valyala/fasthttp"
 	"go_tp_db/config"
-	"go_tp_db/router"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+	"go_tp_db/router"
 )
 
 func accessLogMiddleware(router fasthttp.RequestHandler) fasthttp.RequestHandler {
@@ -47,7 +47,9 @@ func main() {
 	}()
 
 	router := router.InitRouter()
-	accessLog := accessLogMiddleware(router.Handler)
-
-	log.Fatal(fasthttp.ListenAndServe(":5000", panicMiddleware(accessLog)))
+	//remove for performance
+	//accessLog := accessLogMiddleware(router.Handler)
+	//
+	//log.Fatal(fasthttp.ListenAndServe(":5000", panicMiddleware(accessLog)))
+	log.Fatal(fasthttp.ListenAndServe(":5000", router.Handler))
 }

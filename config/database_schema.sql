@@ -83,7 +83,8 @@ CREATE INDEX thread_slug_idx ON thread(slug);
 -- VOTE
 CREATE TABLE IF NOT EXISTS vote (
   id          INTEGER         NOT NULL REFERENCES thread(id),
-  voice       SMALLINT        NOT NULL ,
+  voice       SMALLINT        NOT NULL,
+  old_voice   SMALLINT        DEFAULT 0,
   nickname    CITEXT          NOT NULL REFERENCES users(nickname),
   UNIQUE (id, nickname)
 );

@@ -20,30 +20,29 @@ func (vote *Vote) Vote(slug string) error {
 	id, err := strconv.Atoi(slug)
 
 	if err != nil {
-		//slug is slug (string)\
+		//slug is slug (string)
 		if _ = tx.QueryRow(helpers.CreateVoteIdBySlug, slug).Scan(&id); id == 0 {
 			return errors.ThreadNotFound
 		}
 	}
-	row, err := tx.Exec(helpers.UpdateVoteById, &vote.Voice, id, &vote.NickName)
-	if err != nil {
-		return errors.ThreadNotFound
-	}
 
-	if row.RowsAffected() == 0 {
-		if err = tx.QueryRow(helpers.SelectThreadId, id).Scan(&id); err != nil {
-			return errors.ThreadNotFound
-		}
+	var diff int
+	tx.QueryRow(helpers.UpdateVoteById, &vote.Voice, id, &vote.NickName).Scan(&diff)
 
-		row, err = tx.Exec(helpers.CreateVoteById, &vote.Voice, &vote.NickName, id)
+	if diff == 0 {
+
+		row, err := tx.Exec(helpers.CreateVoteById, &vote.Voice, &vote.NickName, id)
 		if err != nil {
 			return errors.ThreadNotFound
 		}
+
+		if row.RowsAffected() != 0 {
+			diff = vote.Voice
+		}
 	}
-	_, _ = tx.Exec(helpers.UpdateThreadVotes, id)
-	if row.RowsAffected() != 0 {
-		tx.Commit()
-		return nil
-	}
+	_, _ = tx.Exec(helpers.UpdateThreadVotes, &diff, &id)
+
+
+	tx.Commit()
 	return nil
 }
