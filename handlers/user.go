@@ -41,8 +41,7 @@ func UserProfile(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.UserNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }
 
@@ -62,11 +61,9 @@ func UserUpdateProfile(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.UserUpdateConflict:
 		ctx.SetStatusCode(409)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	case errors.UserNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }

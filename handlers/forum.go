@@ -21,8 +21,7 @@ func ForumCreate(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.UserNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	case errors.ForumIsExist:
 		ctx.SetStatusCode(409)
 		buf, _ := resp.MarshalJSON()
@@ -44,8 +43,7 @@ func ForumDetails(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.UserNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }
 
@@ -66,8 +64,7 @@ func ForumThreadCreate(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.ForumNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	case errors.ThreadIsExist:
 		ctx.SetStatusCode(409)
 		buf, _ := resp.MarshalJSON()
@@ -86,8 +83,7 @@ func GetThreads(ctx *fasthttp.RequestCtx) {
 	switch err {
 	case errors.ForumNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	case nil:
 		ctx.SetStatusCode(200)
 		buf, _ := resp.MarshalJSON()
@@ -111,7 +107,6 @@ func GetUsers(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.ForumNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }

@@ -24,13 +24,11 @@ func PostsCreate(ctx *fasthttp.RequestCtx) {
 		ctx.SetStatusCode(201)
 		ctx.Write(ctx.PostBody())
 	case errors.ThreadNotFound:
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.SetStatusCode(404)
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	case errors.NoThreadParent:
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.SetStatusCode(409)
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }
 
@@ -49,9 +47,8 @@ func PostDetails(ctx *fasthttp.RequestCtx) {
 		buf, _ := resp.MarshalJSON()
 		ctx.Write(buf)
 	case errors.PostNotFound:
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.SetStatusCode(404)
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }
 
@@ -69,9 +66,8 @@ func PostUpdate(ctx *fasthttp.RequestCtx) {
 		buf, _ := post.MarshalJSON()
 		ctx.Write(buf)
 	case errors.PostNotFound:
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
 		ctx.SetStatusCode(404)
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 
 }

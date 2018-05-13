@@ -31,6 +31,16 @@ func (vote *Vote) Vote(slug string) error {
 
 	if diff == 0 {
 
+		//var checkAuth int
+		//if tx.QueryRow(helpers.CheckAuthor, &vote.NickName).Scan(&checkAuth); checkAuth == 0 {
+		//	//log.Println("no author", err)
+		//	return errors.ThreadNotFound
+		//}
+		//var checkThread int
+		//if tx.QueryRow(helpers.CheckThread, &id).Scan(&checkThread); checkThread == 0 {
+		//	//log.Println("no thread", err)
+		//	return errors.ThreadNotFound
+		//}
 		row, err := tx.Exec(helpers.CreateVoteById, &vote.Voice, &vote.NickName, id)
 		if err != nil {
 			return errors.ThreadNotFound

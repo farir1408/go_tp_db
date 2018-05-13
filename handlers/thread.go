@@ -21,8 +21,7 @@ func ThreadDetails(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.ThreadNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }
 
@@ -42,8 +41,7 @@ func ThreadUpdateDetails(ctx *fasthttp.RequestCtx) {
 
 	if err == errors.ThreadNotFound {
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }
 
@@ -64,8 +62,7 @@ func Vote(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.ThreadNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }
 
@@ -103,7 +100,6 @@ func ThreadPosts(ctx *fasthttp.RequestCtx) {
 		ctx.Write(buf)
 	case errors.ThreadNotFound:
 		ctx.SetStatusCode(404)
-		resErr, _ := models.Error{err.Error()}.MarshalJSON()
-		ctx.Write(resErr)
+		ctx.Write([]byte(err.Error()))
 	}
 }

@@ -45,9 +45,9 @@ CREATE INDEX forum_cover_idx ON forum(id, posts, slug, threads, title, author);
 -- POST
 CREATE TABLE IF NOT EXISTS post (
   id          SERIAL          PRIMARY KEY,
-  author      CITEXT          NOT NULL REFERENCES users(nickname),
+  author      CITEXT          NOT NULL,
   created     TIMESTAMPTZ,
-  forum       CITEXT          NOT NULL REFERENCES forum(slug),
+  forum       CITEXT          NOT NULL,
   isEdited    BOOLEAN         NOT NULL DEFAULT FALSE,
   message     TEXT            NOT NULL,
   parent      BIGINT          DEFAULT 0,
@@ -83,11 +83,13 @@ CREATE INDEX thread_slug_idx ON thread(slug);
 -- VOTE
 CREATE TABLE IF NOT EXISTS vote (
   id          INTEGER         NOT NULL REFERENCES thread(id),
+--   id          INTEGER         NOT NULL,
   voice       SMALLINT        NOT NULL,
   old_voice   SMALLINT        DEFAULT 0,
+--   nickname    CITEXT          NOT NULL,
   nickname    CITEXT          NOT NULL REFERENCES users(nickname),
   UNIQUE (id, nickname)
 );
 
--- CREATE INDEX vote_thread_idx ON vote(id);
--- CREATE INDEX vote_author_idx ON vote(nickname);
+CREATE INDEX vote_thread_idx ON vote(id);
+CREATE INDEX vote_author_idx ON vote(nickname);

@@ -9,8 +9,7 @@ const SelectThreadIdForumSlugByID = `SELECT id, forum FROM thread
 const SelectThreadID = `SELECT parentId FROM post WHERE id = $1 AND thread = $2`
 
 const CreatePost = `INSERT INTO post (author, created, forum, message, parent, thread)
-					VALUES ((SELECT nickname FROM users WHERE nickname = $1),
-					$2, $3, $4, $5, $6)
+					VALUES ($1, $2, $3, $4, $5, $6)
 					RETURNING id`
 
 const CreatePostParent = `UPDATE post SET parentId = $2
@@ -25,3 +24,8 @@ const UpdatePost = `UPDATE post SET message = coalesce(coalesce(nullif($1, ''), 
 					RETURNING author, (created AT TIME ZONE 'UTC'), forum, id, isEdited, message, parent, thread`
 
 const SelectPostMessage = `SELECT author, (created AT TIME ZONE 'UTC'), forum, id, isEdited, message, parent, thread FROM post WHERE id = $1`
+
+const SelectUserNick = `SELECT about, email, fullname, nickname FROM users WHERE nickname = $1`
+
+const InsertForumUsers = 	`INSERT INTO forum_users (about, email, fullname,
+							nickname, forum_slug) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`

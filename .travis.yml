@@ -1,0 +1,19 @@
+sudo: required
+
+language: go
+
+services:
+  - docker
+
+install:
+  - docker build --no-cache -t o.venger ./
+  - docker run -d -p 5000:5000 --name o.venger -t o.venger
+  - docker ps -a
+  - go get -u -v github.com/bozaro/tech-db-forum
+  - go build github.com/bozaro/tech-db-forum
+
+script:
+  - ./tech-db-forum func -u http://localhost:5000/api
+
+after_script:
+  - docker kill o.venger

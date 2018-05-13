@@ -9,6 +9,8 @@ import (
 	"log"
 	"strconv"
 	"time"
+	"context"
+	"github.com/jackc/pgx/pgtype"
 )
 
 //easyjson:json
@@ -22,6 +24,7 @@ type Post struct {
 	Parent   int        `json:"parent,omitempty"`
 	Thread   int        `json:"thread"`
 	Slug     string     `json:"slug,omitempty"`
+	ParentId []int64
 }
 
 //easyjson:json
@@ -44,6 +47,9 @@ func (posts *Posts) PostsCreate(slug string) error {
 	tx := config.StartTransaction()
 	defer tx.Rollback()
 
+	batch := tx.BeginBatch()
+	defer batch.Close()
+
 	//checking thread id or slug
 	var forumSlug string
 
@@ -65,26 +71,93 @@ func (posts *Posts) PostsCreate(slug string) error {
 
 	created, _ := time.Parse("2006-01-02T15:04:05.000000Z", "2006-01-02T15:04:05.010000Z")
 
-	for _, post := range *posts {
+	//NEW
+	users := Users{}
+	//authors := make(map[string]struct{})
+	var nonRootPosts []int
 
-		if err = tx.QueryRow(helpers.CreatePost, post.Author, &created,
-			forumSlug, post.Message, &post.Parent, id).Scan(&post.ID); err != nil {
+	for i, post := range *posts {
+		if post.Parent != 0 {
+			nonRootPosts = append(nonRootPosts, i)
+			batch.Queue(helpers.SelectThreadID, []interface{}{post.Parent, id},
+				[]pgtype.OID{pgtype.Int4OID, pgtype.Int4OID}, nil)
+		}
+	}
+
+	for _, post := range *posts {
+		batch.Queue(helpers.SelectUserNick, []interface{}{post.Author},
+			[]pgtype.OID{pgtype.TextOID}, nil)
+	}
+
+	if err = batch.Send(context.Background(), nil); err != nil {
+		log.Panic(err)
+	}
+
+	for _, val := range nonRootPosts {
+		var parents []int64
+		if err := batch.QueryRowResults().Scan(&parents); err != nil {
+			return errors.NoThreadParent
+		}
+		(*posts)[val].ParentId = append((*posts)[val].ParentId, parents...)
+	}
+
+	//check authors
+	for range *posts {
+		user := User{}
+		if err := batch.QueryRowResults().Scan(&user.About,
+			&user.Email, &user.FullName, &user.NickName); err != nil {
+				return errors.ThreadNotFound
+		}
+		users = append(users, &user)
+	}
+
+	//TODO: сделать через batch
+	//for i, post := range *posts {
+	//	log.Println("CREATE ", i)
+	//	batch.Queue(helpers.CreatePost, []interface{}{&users[i].NickName, &created,
+	//		&forumSlug, &post.Message, &post.Parent, &id}, []pgtype.OID{
+	//		pgtype.TextOID, pgtype.TimestamptzOID, pgtype.TextOID, pgtype.TextOID,
+	//		pgtype.Int4OID, pgtype.Int4OID}, nil)
+	//}
+
+	//for _, user := range users {
+	//	batch.Queue(helpers.InsertForumUsers, []interface{}{&user.About, &user.Email,
+	//		&user.FullName, &user.NickName, &forumSlug}, []pgtype.OID{
+	//		pgtype.TextOID, pgtype.TextOID, pgtype.TextOID, pgtype.TextOID, pgtype.TextOID}, nil)
+	//}
+
+	//if err = batch.Send(context.Background(), nil); err != nil {
+	//	log.Panic(err)
+	//}
+
+	//for _, post := range *posts {
+	//	if err := batch.QueryRowResults().Scan(&post.ID); err != nil {
+	//		log.Println(err)
+	//		return errors.ThreadNotFound
+	//	}
+	//}
+
+	//log.Println(len(users))
+	//for range users {
+	//	if _, err := batch.QueryResults(); err != nil {
+	//		log.Panic(err)
+	//	}
+	//}
+	//OLD
+
+	for i, post := range *posts {
+
+		if err = tx.QueryRow(helpers.CreatePost, &users[i].NickName, &created,
+			&forumSlug, &post.Message, &post.Parent, &id).Scan(&post.ID); err != nil {
 			return errors.ThreadNotFound
 		}
-		parents := make([]int64, 0, 10)
 
-		if post.Parent != 0 {
+		post.ParentId = append(post.ParentId, int64(post.ID))
 
-			err = tx.QueryRow(helpers.SelectThreadID, &post.Parent, id).Scan(&parents)
+		_, err = tx.Exec(helpers.InsertForumUsers, &users[i].About, &users[i].Email,
+			&users[i].FullName, &users[i].NickName, &forumSlug)
 
-			if err != nil {
-				return errors.NoThreadParent
-			}
-		}
-		parents = append(parents, int64(post.ID))
-
-		tx.Exec(helpers.InsertForumUsersTmpThread, &post.Author, &forumSlug)
-		_, err = tx.Exec(helpers.CreatePostParent, &post.ID, &parents)
+		_, err = tx.Exec(helpers.CreatePostParent, &post.ID, &post.ParentId)
 		if err != nil {
 			log.Println(err)
 		}

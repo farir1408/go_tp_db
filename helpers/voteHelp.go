@@ -10,4 +10,7 @@ const UpdateThreadVotes = `UPDATE thread SET votes = votes + $1
 
 const CreateVoteIdBySlug = `SELECT id FROM thread WHERE slug = $1`
 
-//const SelectThreadId = `SELECT id FROM thread WHERE id = $1`
+//optimize for create votes
+const CheckAuthor = `SELECT 1 FROM users WHERE nickname = $1`
+
+const CheckThread = `SELECT 1 FROM thread WHERE id = $1`
