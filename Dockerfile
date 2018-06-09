@@ -26,7 +26,11 @@ RUN echo "host all  all    0.0.0.0/0  md5" >>\
 
 RUN echo "listen_addresses='*'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "synchronous_commit = off" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
-RUN echo "shared_buffers = 256MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "fsync = 'off'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "max_wal_size = 1GB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "shared_buffers = 128MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "effective_cache_size = 256MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "work_mem = 64MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "autovacuum = off" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 
 USER root
