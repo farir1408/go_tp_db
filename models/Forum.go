@@ -5,6 +5,7 @@ import (
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
 	"strings"
+	"log"
 )
 
 //easyjson:json
@@ -84,7 +85,14 @@ func (thread *Thread) ForumThreadCreate() (*Thread, error) {
 		return nil, errors.ForumNotFound
 	}
 
-	tx.Exec(helpers.InsertForumUsersTmpThread, &thread.Author, &thread.ForumId)
+	//var key int
+	//if _ = tx.QueryRow("SELECT 1 FROM forum_users WHERE (nickname = $1 AND forum_slug = $2)", &thread.Author, &thread.ForumId); key != 1 {
+	//}
+	_, err := tx.Exec(helpers.InsertForumUsersTmpThread, &thread.Author, &thread.ForumId)
+	if err != nil {
+		log.Panic("Thread - ", err)
+	}
+
 	tx.Exec(helpers.UpdateThreadCntForum, &thread.ForumId)
 
 	tx.Commit()

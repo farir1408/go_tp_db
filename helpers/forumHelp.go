@@ -31,25 +31,25 @@ const UpdateThreadCntForum = `UPDATE forum SET threads = threads + 1 WHERE slug 
 
 const InsertForumUsersTmpThread = 	`INSERT INTO forum_users (about, email, fullname, nickname, forum_slug) 
 									SELECT about, email, fullname, nickname, $2 AS forum_slug FROM users
-									WHERE nickname = $1 ON CONFLICT DO NOTHING`
+									WHERE nickname = $1`
 
-const SelectThreadsDesc = `SELECT author, created, forum, id, message, slug, title FROM thread
+const SelectThreadsDesc = `SELECT author, created, forum, id, message, slug, title, votes FROM thread
 					   WHERE forum = $1
 					   ORDER By created DESC
 					   LIMIT $2::TEXT::INTEGER`
 
-const SelectThreads = `SELECT author, created, forum, id, message, slug, title FROM thread
+const SelectThreads = `SELECT author, created, forum, id, message, slug, title, votes FROM thread
 					   WHERE forum = $1
 					   ORDER By created
 					   LIMIT $2::TEXT::INTEGER`
 
-const SelectThreadsSince = 	`SELECT author, created, forum, id, message, slug, title FROM thread
+const SelectThreadsSince = 	`SELECT author, created, forum, id, message, slug, title, votes FROM thread
 					   		WHERE forum = $1
 					   		AND created >= $2::TEXT::TIMESTAMPTZ
 					   		ORDER By created
 					   		LIMIT $3::TEXT::INTEGER`
 
-const SelectThreadsSinceDesc = 	`SELECT author, created, forum, id, message, slug, title FROM thread
+const SelectThreadsSinceDesc = 	`SELECT author, created, forum, id, message, slug, title, votes FROM thread
 					   			WHERE forum = $1
 					   			AND created <= $2::TEXT::TIMESTAMPTZ
 					   			ORDER By created DESC

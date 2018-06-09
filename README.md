@@ -1,3 +1,8 @@
+| Func      | Status |
+|-----------|--------|
+| Func test | [![Build Status](https://travis-ci.org/farir1408/go_tp_db.svg?branch=master)](https://travis-ci.org/farir1408/go_tp_db) |
+| Perf test |        |
+
 # tech-db-forum
 
 Тестовое задание для реализации проекта "Форумы" на курсе по базам данных в Технопарке Mail.ru (https://park.mail.ru).

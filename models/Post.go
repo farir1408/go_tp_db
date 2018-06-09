@@ -11,6 +11,7 @@ import (
 	"time"
 	"context"
 	"github.com/jackc/pgx/pgtype"
+	"strings"
 )
 
 //easyjson:json
@@ -72,7 +73,7 @@ func (posts *Posts) PostsCreate(slug string) error {
 	created, _ := time.Parse("2006-01-02T15:04:05.000000Z", "2006-01-02T15:04:05.010000Z")
 
 	//NEW
-	users := Users{}
+	//users := Users{}
 	//authors := make(map[string]struct{})
 	var nonRootPosts []int
 
@@ -84,9 +85,16 @@ func (posts *Posts) PostsCreate(slug string) error {
 		}
 	}
 
+	userMap := map[string]User{}
+	var usersList []string
 	for _, post := range *posts {
-		batch.Queue(helpers.SelectUserNick, []interface{}{post.Author},
-			[]pgtype.OID{pgtype.TextOID}, nil)
+		//only unique users
+		if _, ok := userMap[strings.ToLower(post.Author)]; !ok {
+			userMap[strings.ToLower(post.Author)] = User{}
+			batch.Queue(helpers.SelectUserNick, []interface{}{post.Author},
+				[]pgtype.OID{pgtype.TextOID}, nil)
+		}
+		usersList = append(usersList, post.Author)
 	}
 
 	if err = batch.Send(context.Background(), nil); err != nil {
@@ -102,13 +110,14 @@ func (posts *Posts) PostsCreate(slug string) error {
 	}
 
 	//check authors
-	for range *posts {
+	for i := 0; i < len(userMap); i++ {
 		user := User{}
 		if err := batch.QueryRowResults().Scan(&user.About,
 			&user.Email, &user.FullName, &user.NickName); err != nil {
 				return errors.ThreadNotFound
 		}
-		users = append(users, &user)
+		userMap[strings.ToLower(user.NickName)] = user
+		//users = append(users, &user)
 	}
 
 	//TODO: сделать через batch
@@ -145,27 +154,38 @@ func (posts *Posts) PostsCreate(slug string) error {
 	//}
 	//OLD
 
-	for i, post := range *posts {
+	for _, post := range *posts {
 
-		if err = tx.QueryRow(helpers.CreatePost, &users[i].NickName, &created,
+		if err = tx.QueryRow(helpers.CreatePost, userMap[strings.ToLower(post.Author)].NickName, &created,
 			&forumSlug, &post.Message, &post.Parent, &id).Scan(&post.ID); err != nil {
 			return errors.ThreadNotFound
 		}
 
 		post.ParentId = append(post.ParentId, int64(post.ID))
-
-		_, err = tx.Exec(helpers.InsertForumUsers, &users[i].About, &users[i].Email,
-			&users[i].FullName, &users[i].NickName, &forumSlug)
+		//var key int
+		//if _ = tx.QueryRow("SELECT 1 FROM forum_users WHERE (nickname = $1 AND forum_slug = $2)", &users[i].NickName, &forumSlug).Scan(&key); key != 1 {
+		//}
 
 		_, err = tx.Exec(helpers.CreatePostParent, &post.ID, &post.ParentId)
 		if err != nil {
-			log.Println(err)
+			log.Panic(err)
 		}
 		post.Created = &created
 		post.IsEdited = false
 		post.ForumID = forumSlug
 		post.Thread = id
 
+	}
+	//log.Panic("LEN USERS ", len(userMap))
+	for _, value := range userMap {
+		var key int
+		if _ = tx.QueryRow("SELECT 1 FROM forum_users WHERE (nickname = $1 AND forum_slug = $2)", &value.NickName, &forumSlug).Scan(&key); key != 1 {
+			_, err = tx.Exec(helpers.InsertForumUsers, &value.About, &value.Email,
+				&value.FullName, &value.NickName, &forumSlug)
+			if err != nil {
+				log.Panic("User Inser - ", err)
+			}
+		}
 	}
 
 	tx.Exec(helpers.InsertForumPostCnt, len(*posts), &forumSlug)

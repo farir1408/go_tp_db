@@ -14,11 +14,11 @@ CREATE TABLE IF NOT EXISTS users (
 -- таблица для поиска всех пользователей форума
 CREATE TABLE IF NOT EXISTS forum_users (
   about       TEXT                NOT NULL,
-  email       CITEXT UNIQUE       NOT NULL,
+  email       CITEXT              NOT NULL,
   fullname    TEXT                NOT NULL,
   nickname    CITEXT COLLATE "C"  NOT NULL,
-  forum_slug  CITEXT              NOT NULL,
-  UNIQUE (nickname, forum_slug)
+  forum_slug  CITEXT              NOT NULL
+--   UNIQUE (nickname, forum_slug)
 );
 
 CREATE INDEX forum_users_nickname_idx ON forum_users (nickname);
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS forum (
   author      CITEXT          NOT NULL REFERENCES users(nickname)
 );
 
-CREATE INDEX forum_slug_idx ON forum (slug);
+-- CREATE INDEX forum_slug_idx ON forum (slug);
 CREATE INDEX forum_author_idx ON forum(author);
 CREATE INDEX forum_cover_idx ON forum(id, posts, slug, threads, title, author);
 

@@ -85,6 +85,10 @@ func (newUser *User) UpdateUserProfile() error {
 
 		return errors.UserNotFound
 	}
+	if _, err := tx.Exec(helpers.UpdateForumUsers, &newUser.About, &newUser.Email,
+		&newUser.FullName, &newUser.NickName); err != nil {
+		log.Panic(err)
+	}
 
 	tx.Commit()
 	return nil

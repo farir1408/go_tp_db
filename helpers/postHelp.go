@@ -28,4 +28,4 @@ const SelectPostMessage = `SELECT author, (created AT TIME ZONE 'UTC'), forum, i
 const SelectUserNick = `SELECT about, email, fullname, nickname FROM users WHERE nickname = $1`
 
 const InsertForumUsers = 	`INSERT INTO forum_users (about, email, fullname,
-							nickname, forum_slug) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`
+							nickname, forum_slug) VALUES ($1, $2, $3, $4, $5)`
