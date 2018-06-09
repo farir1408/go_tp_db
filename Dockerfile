@@ -29,7 +29,7 @@ RUN echo "synchronous_commit = off" >> /etc/postgresql/$PG_VERSION/main/postgres
 RUN echo "fsync = 'off'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "max_wal_size = 1GB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "shared_buffers = 128MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
-RUN echo "effective_cache_size = 256MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "effective_cache_size = 512MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "work_mem = 64MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "autovacuum = off" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 
