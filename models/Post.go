@@ -166,7 +166,7 @@ func (posts *Posts) PostsCreate(slug string) error {
 		//if _ = tx.QueryRow("SELECT 1 FROM forum_users WHERE (nickname = $1 AND forum_slug = $2)", &users[i].NickName, &forumSlug).Scan(&key); key != 1 {
 		//}
 
-		_, err = tx.Exec(helpers.CreatePostParent, &post.ID, &post.ParentId)
+		_, err = tx.Exec(helpers.CreatePostParent, &post.ID, &post.ParentId, &post.ParentId[0])
 		if err != nil {
 			log.Panic(err)
 		}

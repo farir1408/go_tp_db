@@ -12,7 +12,7 @@ const CreatePost = `INSERT INTO post (author, created, forum, message, parent, t
 					VALUES ($1, $2, $3, $4, $5, $6)
 					RETURNING id`
 
-const CreatePostParent = `UPDATE post SET parentId = $2
+const CreatePostParent = `UPDATE post SET parentId = $2, root = $3
 							WHERE id = $1`
 
 const SelectPost = `SELECT author, (created AT TIME ZONE 'UTC'), forum, message, parent, thread, isEdited
