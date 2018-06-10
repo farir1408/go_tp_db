@@ -46,5 +46,5 @@ export PATH=$PATH:/usr/local/go/bin
 ADD ./ $GOPATH/src/go_tp_db/
 EXPOSE 5000
 WORKDIR $GOPATH/src/go_tp_db
-
-CMD service postgresql start && go run main.go
+RUN go get -u golang.org/x/vgo
+CMD service postgresql start && vgo run main.go
