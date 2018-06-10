@@ -48,8 +48,8 @@ func main() {
 
 	router := router.InitRouter()
 	//remove for performance
-	accessLog := accessLogMiddleware(router.Handler)
+	//accessLog := accessLogMiddleware(router.Handler)
 	//
 	//log.Fatal(fasthttp.ListenAndServe(":5000", panicMiddleware(accessLog)))
-	log.Fatal(fasthttp.ListenAndServe(":5000", accessLog))
+	log.Fatal(fasthttp.ListenAndServe(":5000", router.Handler))
 }
