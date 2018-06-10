@@ -42,7 +42,7 @@ mkdir go && mkdir go/src && mkdir go/bin && mkdir go/pkg
 ENV GOPATH $HOME/go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH &&\
 export PATH=$PATH:/usr/local/go/bin
-RUN go get -u golang.org/x/vgo
+RUN apt-get install -y git && go get -u golang.org/x/vgo
 
 ADD ./ $GOPATH/src/go_tp_db/
 EXPOSE 5000
