@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS post (
 
 CREATE INDEX post_thread_idx ON post(thread, id);
 CREATE INDEX post_forum_idx ON post(forum);
-CREATE INDEX post_parents_idx ON post(thread, parentId);
-CREATE INDEX post_parents_desc_idx ON post(thread, parentId DESC);
+-- CREATE INDEX post_parents_idx ON post(thread, parentId);
+-- CREATE INDEX post_parents_desc_idx ON post(thread, parentId DESC);
 
 -- THREAD
 CREATE TABLE IF NOT EXISTS thread (

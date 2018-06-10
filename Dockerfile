@@ -47,4 +47,4 @@ ADD ./ $GOPATH/src/go_tp_db/
 EXPOSE 5000
 WORKDIR $GOPATH/src/go_tp_db
 
-CMD service postgresql start && go run main.go
+CMD service postgresql start && vgo run main.go
