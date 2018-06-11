@@ -60,6 +60,7 @@ CREATE INDEX post_thread_idx ON post(thread, id);
 CREATE INDEX post_forum_idx ON post(thread, parentId);
 CREATE INDEX post_root_id_idx ON post(thread, parent, root, id);
 CREATE INDEX post_parents_since_idx ON post(root, id, parentId);
+CREATE INDEX post_thread_parent_idx ON post(thread, parent, root, id);
 -- CREATE INDEX post_root_id_idx ON post(id, root);
 -- CREATE INDEX post_thread_idx ON post(thread);
 -- CREATE INDEX post_thread_parent_idx ON post(thread, parent, root, id);
