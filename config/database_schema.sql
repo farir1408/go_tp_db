@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS post (
   parentId    BIGINT []
 );
 
-CREATE INDEX post_thread_idx ON post(thread, id);
+CREATE INDEX post_thread_id_idx ON post(thread, id);
 -- CREATE INDEX post_forum_idx ON post(forum);
 CREATE INDEX post_root_id_idx ON post(id, root);
 CREATE INDEX post_thread_idx ON post(thread);
