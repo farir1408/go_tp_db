@@ -52,7 +52,6 @@ func (vote *Vote) Vote(slug string) error {
 	}
 	_, _ = tx.Exec(helpers.UpdateThreadVotes, &diff, &id)
 
-
 	tx.Commit()
 	return nil
 }

@@ -3,17 +3,17 @@ package main
 import (
 	"github.com/valyala/fasthttp"
 	"go_tp_db/config"
+	"go_tp_db/router"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-	"go_tp_db/router"
 )
 
 func accessLogMiddleware(router fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		//log.Println("Access Log Middleware: ", ctx.URI())
+		log.Println("Access Log Middleware: ", ctx.URI())
 		start := time.Now()
 		router(ctx)
 		log.Printf("[%s] %s, %s\n", string(ctx.Method()), ctx.URI(), time.Since(start))

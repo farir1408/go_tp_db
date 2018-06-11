@@ -2,16 +2,16 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/pgtype"
 	"go_tp_db/config"
 	"go_tp_db/errors"
 	"go_tp_db/helpers"
 	"log"
 	"strconv"
-	"time"
-	"context"
-	"github.com/jackc/pgx/pgtype"
 	"strings"
+	"time"
 )
 
 //easyjson:json
@@ -114,7 +114,7 @@ func (posts *Posts) PostsCreate(slug string) error {
 		user := User{}
 		if err := batch.QueryRowResults().Scan(&user.About,
 			&user.Email, &user.FullName, &user.NickName); err != nil {
-				return errors.ThreadNotFound
+			return errors.ThreadNotFound
 		}
 		userMap[strings.ToLower(user.NickName)] = user
 		//users = append(users, &user)

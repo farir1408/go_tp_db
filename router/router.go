@@ -2,19 +2,19 @@ package router
 
 import (
 	"github.com/buaazp/fasthttprouter"
-	"go_tp_db/handlers"
-	"github.com/valyala/fasthttp/fasthttpadaptor"
-	"net/http/pprof"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/fasthttpadaptor"
+	"go_tp_db/handlers"
+	"net/http/pprof"
 	"strings"
 )
 
 var (
 	Cmdline = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Cmdline)
 	Profile = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Profile)
-	Symbol = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Symbol)
-	Trace = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Trace)
-	Index = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Index)
+	Symbol  = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Symbol)
+	Trace   = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Trace)
+	Index   = fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Index)
 )
 
 func PprofHandler(ctx *fasthttp.RequestCtx) {

@@ -126,8 +126,8 @@ func GetThreads(slug string, limit []byte,
 		existThread := Thread{}
 
 		if err = results.Scan(&existThread.Author, &existThread.Created, &existThread.ForumId,
-				&existThread.ID, &existThread.Message, &existThread.Slug, &existThread.Title,
-				&existThread.Votes); err != nil {
+			&existThread.ID, &existThread.Message, &existThread.Slug, &existThread.Title,
+			&existThread.Votes); err != nil {
 			log.Panic(err)
 		}
 		threads = append(threads, &existThread)
