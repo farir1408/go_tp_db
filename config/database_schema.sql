@@ -61,7 +61,8 @@ CREATE INDEX post_thread_id_idx ON post(thread, id);
 -- CREATE INDEX post_forum_idx ON post(forum);
 CREATE INDEX post_root_id_idx ON post(id, root);
 CREATE INDEX post_thread_idx ON post(thread);
-CREATE INDEX post_parents_idx ON post(thread, id, parent, root) WHERE parent = 0;
+--CREATE INDEX post_parents_idx ON post(thread, id, parent, root) WHERE parent = 0;
+CREATE INDEX post_root_id_idx ON post(thread, parent, root, id);
 CREATE INDEX post_root_idx ON post(root, parentId DESC, id);
 CREATE INDEX post_thread_parents_idx ON post(thread, parentId);
 -- CREATE INDEX post_parents_desc_idx ON post(thread, parentId DESC);
@@ -78,7 +79,7 @@ CREATE TABLE IF NOT EXISTS thread (
   votes       INTEGER         DEFAULT 0
 );
 
-CREATE INDEX thread_author_idx ON thread(author);
+--CREATE INDEX thread_author_idx ON thread(author);
 CREATE INDEX thread_forum_idx ON thread(forum, created);
 CREATE INDEX thread_forum_desc_idx ON thread(forum, created DESC);
 CREATE INDEX thread_slug_idx ON thread(slug);
