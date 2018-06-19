@@ -32,6 +32,7 @@ RUN echo "max_wal_size = 1GB" >> /etc/postgresql/$PG_VERSION/main/postgresql.con
 RUN echo "shared_buffers = 64MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "effective_cache_size = 512MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 RUN echo "work_mem = 64MB" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+RUN echo "autovacuum = off" » /etc/postgresql/$PG_VERSION/main/postgresql.conf
 
 USER root
 
